@@ -1,0 +1,80 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: 'DM Sans', system-ui, sans-serif;
+  background: #0c0f14;
+  color: #e2e8f0;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-track {
+  background: #111827;
+}
+::-webkit-scrollbar-thumb {
+  background: #2f3d52;
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #3d4f66;
+}
+
+@layer components {
+  .panel {
+    @apply bg-surface-800 border border-surface-600/80 rounded-xl;
+    box-shadow: 0 1px 0 rgba(255, 255, 255, 0.04) inset;
+  }
+  .btn-primary {
+    @apply bg-brand-500 hover:bg-brand-400 text-surface-950 font-medium rounded-lg transition-colors;
+  }
+  .btn-ghost {
+    @apply text-accent-muted hover:text-slate-200 hover:bg-surface-700/80 rounded-lg transition-colors;
+  }
+  .input-field {
+    @apply bg-surface-900 border border-surface-600/80 rounded-xl px-4 py-3 text-sm text-slate-100 placeholder-slate-500 focus:outline-none focus:border-brand-500/60 focus:ring-1 focus:ring-brand-500/30;
+  }
+  .report-prose h1 {
+    @apply text-lg font-semibold text-slate-100 mt-6 mb-3;
+  }
+  .report-prose h2 {
+    @apply text-base font-semibold text-brand-400 mt-5 mb-2;
+  }
+  .report-prose h3 {
+    @apply text-sm font-medium text-slate-200 mt-4 mb-2;
+  }
+  .report-prose p {
+    @apply text-sm text-slate-300 leading-relaxed mb-3;
+  }
+  .report-prose table {
+    @apply w-full text-xs border-collapse my-3;
+  }
+  .report-prose th {
+    @apply bg-surface-700 text-left text-slate-200 font-medium px-3 py-2 border border-surface-600;
+  }
+  .report-prose td {
+    @apply px-3 py-2 border border-surface-600 text-slate-300;
+  }
+  .report-prose blockquote {
+    @apply border-l-2 border-brand-500/50 pl-4 text-slate-400 italic my-3;
+  }
+  .report-prose hr {
+    @apply border-surface-600 my-6;
+  }
+  .report-prose ul {
+    @apply list-disc ml-5 text-sm text-slate-300 space-y-1 mb-3;
+  }
+  .report-prose strong {
+    @apply text-slate-100 font-semibold;
+  }
+}
