@@ -20,30 +20,42 @@ export class GeminiProvider implements AIProvider {
       parts: [{ text: m.content }],
     }));
 
-    const { data } = await axios.post(
-      `${GEMINI_BASE}/models/${this.model}:generateContent`,
-      {
-        ...(system
-          ? { systemInstruction: { parts: [{ text: system }] } }
-          : {}),
-        contents,
-        generationConfig: {
-          maxOutputTokens: maxTokens,
-          temperature: 0.35,
+    try {
+      const { data } = await axios.post(
+        `${GEMINI_BASE}/models/${this.model}:generateContent`,
+        {
+          ...(system
+            ? { systemInstruction: { parts: [{ text: system }] } }
+            : {}),
+          contents,
+          generationConfig: {
+            maxOutputTokens: maxTokens,
+            temperature: 0.35,
+          },
         },
-      },
-      {
-        params: { key: this.apiKey },
-        headers: { 'Content-Type': 'application/json' },
-        timeout: 180_000,
-      }
-    );
+        {
+          params: { key: this.apiKey },
+          headers: { 'Content-Type': 'application/json' },
+          timeout: 180_000,
+        }
+      );
 
-    const text = data?.candidates?.[0]?.content?.parts?.[0]?.text;
-    if (!text) {
-      const msg = data?.error?.message || 'Gemini returned an empty response';
-      throw new Error(msg);
+      const text = data?.candidates?.[0]?.content?.parts?.[0]?.text;
+      if (!text) {
+        const msg = data?.error?.message || 'Gemini returned an empty response';
+        throw new Error(msg);
+      }
+      return text;
+    } catch (err: unknown) {
+      if (axios.isAxiosError(err) && err.response?.status === 429) {
+        const detail =
+          (err.response.data as { error?: { message?: string } })?.error?.message ||
+          'Gemini rate limit exceeded';
+        throw new Error(
+          `Gemini API rate limit (429): ${detail}. Wait a few minutes, check quota at https://aistudio.google.com/, or enable billing.`
+        );
+      }
+      throw err;
     }
-    return text;
   }
 }

@@ -38,10 +38,10 @@ export default function TestCaseCard({ testCase, onRun }: Props) {
         className="flex items-center gap-1 text-xs text-gray-400 hover:text-accent-green mb-2"
       >
         {expanded ? <ChevronDown size={14} /> : <ChevronRight size={14} />}
-        {testCase.steps.length} steps
+        {(testCase.steps || []).length} steps
       </button>
 
-      {expanded && (
+      {expanded && testCase.steps && testCase.steps.length > 0 && (
         <ol className="space-y-2 mb-3 pl-2">
           {testCase.steps.map((step) => (
             <li key={step.stepNumber} className="text-xs text-gray-400">
@@ -53,7 +53,7 @@ export default function TestCaseCard({ testCase, onRun }: Props) {
       )}
 
       <div className="flex flex-wrap gap-1 mb-3">
-        {testCase.tags.map((tag) => (
+        {(testCase.tags || []).map((tag) => (
           <span key={tag} className="text-xs px-2 py-0.5 bg-surface-900 text-gray-500 rounded">
             #{tag}
           </span>

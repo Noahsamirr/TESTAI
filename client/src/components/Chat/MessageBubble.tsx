@@ -3,6 +3,7 @@ import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { oneDark } from 'react-syntax-highlighter/dist/esm/styles/prism';
 import { Message, AgentPhase } from '../../types';
 import { stripEmojis } from '../../utils/stripEmojis';
+import Mermaid from '../TestPanel/Mermaid';
 
 const phaseLabels: Record<AgentPhase, string> = {
   questioning: 'Discovery',
@@ -15,9 +16,26 @@ interface Props {
   message: Message;
 }
 
+function formatMermaidBlocks(text: string): string {
+  // Ensure ```mermaid starts on its own line
+  let formatted = text.replace(/([^\n])```mermaid/g, '$1\n```mermaid');
+  
+  // Format single-line mermaid blocks to multi-line so mermaid can parse them
+  const mermaidRegex = /```mermaid([\s\S]*?)```/g;
+  formatted = formatted.replace(mermaidRegex, (match, p1) => {
+    let content = p1.trim();
+    if (!content.includes('\n')) {
+      content = content.replace(/;/g, '\n');
+    }
+    return `\n\`\`\`mermaid\n${content}\n\`\`\`\n`;
+  });
+  return formatted;
+}
+
 export default function MessageBubble({ message }: Props) {
   const isUser = message.role === 'user';
-  const content = isUser ? message.content : stripEmojis(message.content);
+  const rawContent = isUser ? message.content : stripEmojis(message.content);
+  const content = isUser ? rawContent : formatMermaidBlocks(rawContent);
 
   return (
     <div className={`flex ${isUser ? 'justify-end' : 'justify-start'} mb-4 px-4`}>
@@ -42,6 +60,11 @@ export default function MessageBubble({ message }: Props) {
                 code({ className, children, ...props }) {
                   const match = /language-(\w+)/.exec(className || '');
                   const code = String(children).replace(/\n$/, '');
+                  
+                  if (match && match[1] === 'mermaid') {
+                    return <Mermaid chart={code} />;
+                  }
+                  
                   return match ? (
                     <SyntaxHighlighter style={oneDark} language={match[1]} PreTag="div">
                       {code}

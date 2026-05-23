@@ -4,11 +4,21 @@ An AI-powered QA automation assistant that helps you create E2E web tests, mobil
 
 ## Features
 
+### Sauce Labs–style platform
+- **Dashboard** — Live stats, recent runs, quick launch
+- **Live cross-browser testing** — Start sessions with URL + browser/OS matrix; screenshot capture via Playwright
+- **Automated runs** — Persisted run history with pass/fail counts and duration
+- **Real device cloud** — Device catalog with reserve/release (Appium-ready)
+- **CI/CD integrations** — GitHub Actions, Jenkins, CircleCI, GitLab, Azure pipeline templates
+- **Parallel matrix** — Queue multi-browser runs via API
+- **Local tunnel** — Config for staging apps (Sauce Connect–style via env)
+
+### AI automation
 - **Conversational test design** — Chat with the agent to define test scenarios
 - **Test case generation** — Structured given/when/then test cases in JSON
 - **Script generation** — Playwright, Appium/WebdriverIO, and Axios+Jest scripts with inline explanations
 - **Test execution** — Run generated scripts with live terminal output via WebSocket
-- **Reporting** — HTML reports, JSON/CSV export, Allure-compatible results, AI executive summaries
+- **Reporting** — HTML reports, JSON/CSV export, Allure-compatible results, AI executive summaries, coverage heatmap, bug triage
 
 ## Tech Stack
 
@@ -119,6 +129,10 @@ testmind-ai/
 | GET | `/api/scripts/:sessionId` | Get scripts |
 | POST | `/api/runner/run` | Run a script |
 | GET | `/api/reports/session/:sessionId` | Get reports |
+| GET | `/api/platform/dashboard` | Dashboard stats + recent runs |
+| GET | `/api/platform/capabilities` | Browser/device/CI catalog |
+| POST | `/api/platform/live/start` | Start live session |
+| GET | `/api/platform/ci/:provider` | CI pipeline template |
 | WS | `ws://localhost:3001` | Test runner streaming |
 
 ## Viewing Reports

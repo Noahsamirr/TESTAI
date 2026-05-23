@@ -36,7 +36,7 @@ function env(name: string): string | undefined {
 }
 
 function resolveGeminiKey(): string | undefined {
-  const gemini = env('GEMINI_API_KEY');
+  const gemini = env('GEMINI_API_KEY') || env('GEMINI_AUTH_TOKEN');
   if (!isPlaceholder(gemini)) return gemini;
   const puter = env('PUTER_AUTH_TOKEN');
   if (puter?.startsWith('AIza')) return puter;

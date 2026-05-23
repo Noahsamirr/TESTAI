@@ -1,4 +1,5 @@
 import { Bug } from '../../types';
+import BugTriage from './BugTriage';
 
 const severityColors: Record<string, string> = {
   Critical: 'bg-red-500/20 text-red-400 border-red-500/30',
@@ -32,13 +33,14 @@ export default function BugCard({ bug, expanded, onToggle }: Props) {
           <div>
             <p className="text-gray-500 mb-1">Steps to Reproduce</p>
             <ol className="list-decimal ml-4">
-              {bug.stepsToReproduce.map((s, i) => (
+              {(bug.stepsToReproduce || []).map((s, i) => (
                 <li key={i}>{s}</li>
               ))}
             </ol>
           </div>
-          <p><strong className="text-gray-300">Expected:</strong> {bug.expectedResult}</p>
-          <p><strong className="text-gray-300">Actual:</strong> {bug.actualResult}</p>
+          <p><strong className="text-gray-300">Expected:</strong> {bug.expectedResult || '—'}</p>
+          <p><strong className="text-gray-300">Actual:</strong> {bug.actualResult || '—'}</p>
+          <BugTriage bug={bug} />
         </div>
       )}
     </div>

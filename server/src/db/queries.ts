@@ -192,3 +192,13 @@ export function getSessions(): { id: string; created_at: string; test_type: stri
     .prepare(`SELECT id, created_at, test_type, status FROM sessions ORDER BY created_at DESC LIMIT 50`)
     .all() as { id: string; created_at: string; test_type: string | null; status: string }[];
 }
+
+export function getUserSessions(userId: string): { id: string; created_at: string; test_type: string | null; status: string; app_context: string | null }[] {
+  return getDB()
+    .prepare(`SELECT id, created_at, test_type, status, app_context FROM sessions WHERE user_id = ? ORDER BY created_at DESC LIMIT 50`)
+    .all(userId) as { id: string; created_at: string; test_type: string | null; status: string; app_context: string | null }[];
+}
+
+export function updateSessionName(sessionId: string, name: string): void {
+  getDB().prepare(`UPDATE sessions SET app_context = ? WHERE id = ?`).run(name, sessionId);
+}

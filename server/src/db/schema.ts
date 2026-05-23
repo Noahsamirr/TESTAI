@@ -94,6 +94,62 @@ export function initializeDB(): void {
 
     CREATE INDEX IF NOT EXISTS idx_token_usage_user_month
       ON token_usage(user_id, created_at);
+
+    CREATE TABLE IF NOT EXISTS test_runs (
+      id TEXT PRIMARY KEY,
+      user_id TEXT REFERENCES users(id),
+      session_id TEXT REFERENCES sessions(id),
+      script_id TEXT REFERENCES scripts(id),
+      name TEXT NOT NULL,
+      status TEXT DEFAULT 'running',
+      framework TEXT,
+      browser TEXT,
+      os TEXT,
+      device TEXT,
+      duration_ms INTEGER,
+      passed INTEGER DEFAULT 0,
+      failed INTEGER DEFAULT 0,
+      skipped INTEGER DEFAULT 0,
+      log_path TEXT,
+      video_path TEXT,
+      screenshot_path TEXT,
+      report_id TEXT,
+      created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+    );
+
+    CREATE TABLE IF NOT EXISTS live_sessions (
+      id TEXT PRIMARY KEY,
+      user_id TEXT REFERENCES users(id),
+      url TEXT NOT NULL,
+      browser TEXT,
+      os TEXT,
+      resolution TEXT,
+      status TEXT DEFAULT 'active',
+      screenshot_path TEXT,
+      created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+      ended_at DATETIME
+    );
+
+    CREATE TABLE IF NOT EXISTS device_reservations (
+      id TEXT PRIMARY KEY,
+      device_id TEXT NOT NULL,
+      user_id TEXT REFERENCES users(id),
+      status TEXT DEFAULT 'active',
+      created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+      released_at DATETIME
+    );
+
+    CREATE TABLE IF NOT EXISTS visual_baselines (
+      id TEXT PRIMARY KEY,
+      user_id TEXT REFERENCES users(id),
+      name TEXT NOT NULL,
+      url TEXT,
+      baseline_path TEXT,
+      created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+    );
+
+    CREATE INDEX IF NOT EXISTS idx_test_runs_user ON test_runs(user_id, created_at);
+    CREATE INDEX IF NOT EXISTS idx_live_sessions_user ON live_sessions(user_id, created_at);
   `);
 
   const cols = database.prepare(`PRAGMA table_info(sessions)`).all() as { name: string }[];

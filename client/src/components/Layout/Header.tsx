@@ -1,6 +1,7 @@
-import { PanelRightClose, PanelRightOpen, LogOut } from 'lucide-react';
+import { PanelRightClose, PanelRightOpen, LogOut, Sun, Moon } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { useAiProvider } from '../../hooks/useAiProvider';
+import { useAppTheme } from '../../context/ThemeContext';
 import TokenBar from './TokenBar';
 
 interface Props {
@@ -12,9 +13,10 @@ interface Props {
 export default function Header({ rightPanelCollapsed, onToggleRightPanel, onManagePlan }: Props) {
   const { user, logout } = useAuth();
   const aiLabel = useAiProvider();
+  const { theme, toggleTheme, isDark } = useAppTheme();
 
   return (
-    <header className="h-14 border-b border-surface-600 flex items-center justify-between px-4 bg-surface-800 shrink-0 gap-4">
+    <header className="h-14 border-b border-surface-600 flex items-center justify-between px-4 bg-surface-800 shrink-0 gap-4 transition-all duration-200">
       <div className="flex items-center gap-2 shrink-0">
         <span className="font-semibold text-brand-400 tracking-tight">TestMind</span>
         <span className="text-xs text-gray-500 hidden sm:inline">
@@ -23,6 +25,17 @@ export default function Header({ rightPanelCollapsed, onToggleRightPanel, onMana
       </div>
       <div className="flex items-center gap-3 min-w-0 flex-1 justify-end">
         <TokenBar onManagePlan={onManagePlan} />
+        <button
+          onClick={toggleTheme}
+          className="p-2 hover:bg-surface-700 rounded-lg transition-all duration-200 text-gray-400 hover:text-brand-400 shrink-0 flex items-center justify-center relative overflow-hidden"
+          title={isDark ? 'Switch to Light theme' : 'Switch to Dark theme'}
+        >
+          {isDark ? (
+            <Sun size={18} className="transition-transform duration-300 hover:rotate-45" />
+          ) : (
+            <Moon size={18} className="transition-transform duration-300 hover:-rotate-12" />
+          )}
+        </button>
         {user && (
           <div className="hidden sm:flex items-center gap-2 shrink-0 border-l border-surface-600 pl-3">
             <span className="text-xs text-gray-400 truncate max-w-[120px]" title={user.email}>

@@ -1,15 +1,16 @@
 import { Router, Request, Response } from 'express';
-import { getScriptById, saveReport } from '../db/queries';
+import { getScriptById } from '../db/queries';
 import { param } from '../utils/params';
 import scriptRunner from '../services/scriptRunner';
 import scriptGenerator from '../services/scriptGenerator';
-import reportGenerator from '../services/reportGenerator';
+import * as platform from '../services/platformService';
+import { attachUserIfPresent } from '../middleware/auth';
 
 const activeRuns = new Map<string, { status: string; framework: string }>();
 
 const router = Router();
 
-router.post('/run', async (req: Request, res: Response) => {
+router.post('/run', attachUserIfPresent, async (req: Request, res: Response) => {
   try {
     const { scriptId, framework } = req.body;
     if (!scriptId) {
@@ -37,21 +38,55 @@ router.post('/run', async (req: Request, res: Response) => {
       );
 
     const fw = (framework || script.framework).toLowerCase();
+    const userId = req.user?.userId;
 
-    const runPromise = (async () => {
-      if (fw.includes('appium') || fw.includes('wdio')) {
-        return scriptRunner.runAppiumScript(scriptPath);
+    const immediateRunnerId = `run-${Date.now()}`;
+    activeRuns.set(immediateRunnerId, { status: 'running', framework: fw });
+
+    const dbRunId = platform.createRunRecord({
+      userId,
+      sessionId: script.sessionId,
+      scriptId: script.id,
+      name: `Run: ${script.framework} suite`,
+      status: 'running',
+      framework: fw,
+      browser: 'Chrome',
+      os: 'Local',
+    });
+
+    res.json({ runnerId: immediateRunnerId, status: 'started', runId: dbRunId });
+
+    const started = Date.now();
+    (async () => {
+      try {
+        let result: { runnerId: string; results: { status: string }[] };
+        if (fw.includes('appium') || fw.includes('wdio')) {
+          result = await scriptRunner.runAppiumScript(scriptPath);
+        } else if (fw.includes('jest') || fw.includes('api')) {
+          result = await scriptRunner.runApiTests(scriptPath);
+        } else {
+          result = await scriptRunner.runPlaywrightScript(scriptPath);
+        }
+        const passed = result.results.filter((r) => r.status === 'passed').length;
+        const failed = result.results.filter((r) => r.status === 'failed').length;
+        const skipped = result.results.filter((r) => r.status === 'skipped').length;
+        platform.completeRunRecord(dbRunId, {
+          status: failed > 0 ? 'failed' : 'passed',
+          durationMs: Date.now() - started,
+          passed,
+          failed,
+          skipped,
+        });
+        activeRuns.set(immediateRunnerId, { status: 'complete', framework: fw });
+      } catch (err) {
+        console.error('Background runner error:', err);
+        platform.completeRunRecord(dbRunId, {
+          status: 'error',
+          durationMs: Date.now() - started,
+        });
+        activeRuns.set(immediateRunnerId, { status: 'error', framework: fw });
       }
-      if (fw.includes('jest') || fw.includes('api')) {
-        return scriptRunner.runApiTests(scriptPath);
-      }
-      return scriptRunner.runPlaywrightScript(scriptPath);
     })();
-
-    const result = await runPromise;
-    activeRuns.set(result.runnerId, { status: 'complete', framework: fw });
-
-    res.json({ runnerId: result.runnerId, status: 'started', results: result.results });
   } catch (error) {
     res.status(500).json({
       error: error instanceof Error ? error.message : 'Failed to run script',

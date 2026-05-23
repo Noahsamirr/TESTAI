@@ -110,14 +110,22 @@ class ClaudeAgent {
       if (cases.length > 0) result.testCases = cases;
     }
 
-    if (text.includes('SCRIPT:') || text.includes('```typescript') || text.includes('```javascript')) {
+    // Always attempt script parse if code-like content is present
+    if (
+      text.includes('SCRIPT:') ||
+      text.includes('```typescript') ||
+      text.includes('```javascript') ||
+      text.includes('```ts') ||
+      phase === 'reviewing'
+    ) {
       const script = this.parseScriptFromResponse(text);
-      if (script.code) result.script = script;
+      if (script.code && script.code.length > 50) result.script = script;
     }
 
+    // Always attempt report parse when reporting phase or explicit prefix
     if (text.includes('REPORT:') || phase === 'reporting') {
       const report = this.parseReportFromResponse(text);
-      if (report.testSuite) result.report = report;
+      if (report.testSuite && report.testSuite !== 'Test Suite') result.report = report;
     }
 
     return result;

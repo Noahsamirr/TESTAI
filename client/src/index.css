@@ -6,13 +6,92 @@
   box-sizing: border-box;
 }
 
+:root {
+  /* LIGHT MODE defaults - Sauce Labs style */
+  --color-brand-400: #3DDC91;
+  --color-brand-500: #3DDC91;
+  --color-brand-600: #2BB673;
+  
+  --color-surface-950: #F9F9F7;
+  --color-surface-900: #FFFFFF;
+  --color-surface-800: #EDF7F5;
+  --color-surface-700: #E2E8F0;
+  --color-surface-600: #CBD5E1;
+
+  --color-accent-primary: #3DDC91;
+  --color-accent-green: #3DDC91;
+  --color-accent-yellow: #FFCD48;
+  --color-accent-muted: #64748B;
+  --color-accent-success: #10B981;
+  --color-accent-warning: #FFCD48;
+  --color-accent-danger: #EF4444;
+  --color-accent-red: #EF4444;
+  --color-accent-info: #3B82F6;
+
+  --shadow-soft: 0 8px 30px rgba(19, 35, 34, 0.08);
+  --shadow-panel: 0 1px 3px rgba(19, 35, 34, 0.05);
+
+  /* Slate colors adjusted for high contrast */
+  --color-slate-50: #132322;
+  --color-slate-100: #1C3332;
+  --color-slate-200: #264543;
+  --color-slate-300: #475569;
+  --color-slate-400: #64748B;
+  --color-slate-500: #94A3B8;
+  --color-slate-600: #CBD5E1;
+  --color-slate-700: #E2E8F0;
+  --color-slate-800: #EDF7F5;
+  --color-slate-900: #F9F9F7;
+  --color-slate-950: #FFFFFF;
+}
+
+.dark {
+  /* DARK MODE defaults - Sauce Labs style */
+  --color-brand-400: #3DDC91;
+  --color-brand-500: #3DDC91;
+  --color-brand-600: #2BB673;
+  
+  --color-surface-950: #0E1A1A;
+  --color-surface-900: #132322;
+  --color-surface-800: #1C3332;
+  --color-surface-700: #264543;
+  --color-surface-600: #2E5452;
+
+  --color-accent-primary: #3DDC91;
+  --color-accent-green: #3DDC91;
+  --color-accent-yellow: #FFCD48;
+  --color-accent-muted: #94A3B8;
+  --color-accent-success: #3DDC91;
+  --color-accent-warning: #FFCD48;
+  --color-accent-danger: #F87171;
+  --color-accent-red: #F87171;
+  --color-accent-info: #60A5FA;
+
+  --shadow-soft: 0 12px 40px rgba(0, 0, 0, 0.4);
+  --shadow-panel: 0 1px 0 rgba(255, 255, 255, 0.05) inset, 0 4px 6px rgba(0, 0, 0, 0.2);
+
+  /* Slates for Dark Mode */
+  --color-slate-50: #F9F9F7;
+  --color-slate-100: #EDF7F5;
+  --color-slate-200: #E2E8F0;
+  --color-slate-300: #CBD5E1;
+  --color-slate-400: #94A3B8;
+  --color-slate-500: #64748B;
+  --color-slate-600: #475569;
+  --color-slate-700: #264543;
+  --color-slate-800: #1C3332;
+  --color-slate-900: #132322;
+  --color-slate-950: #0E1A1A;
+}
+
 body {
   margin: 0;
-  font-family: 'DM Sans', system-ui, sans-serif;
-  background: #0c0f14;
-  color: #e2e8f0;
+  font-family: 'DM Sans', 'Inter', system-ui, sans-serif;
+  background: var(--color-surface-950);
+  color: var(--color-slate-200);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  transition: background-color 0.25s ease, color 0.25s ease, border-color 0.25s ease;
 }
 
 ::-webkit-scrollbar {
@@ -20,29 +99,30 @@ body {
   height: 8px;
 }
 ::-webkit-scrollbar-track {
-  background: #111827;
+  background: var(--color-surface-900);
 }
 ::-webkit-scrollbar-thumb {
-  background: #2f3d52;
-  border-radius: 4px;
+  background: var(--color-surface-600);
+  border-radius: 9999px;
+  border: 2px solid var(--color-surface-900);
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #3d4f66;
+  background: var(--color-brand-500);
 }
 
 @layer components {
   .panel {
-    @apply bg-surface-800 border border-surface-600/80 rounded-xl;
+    @apply bg-surface-800 border border-surface-600 rounded-xl;
     box-shadow: 0 1px 0 rgba(255, 255, 255, 0.04) inset;
   }
   .btn-primary {
     @apply bg-brand-500 hover:bg-brand-400 text-surface-950 font-medium rounded-lg transition-colors;
   }
   .btn-ghost {
-    @apply text-accent-muted hover:text-slate-200 hover:bg-surface-700/80 rounded-lg transition-colors;
+    @apply text-accent-muted hover:text-slate-200 hover:bg-surface-700 rounded-lg transition-colors;
   }
   .input-field {
-    @apply bg-surface-900 border border-surface-600/80 rounded-xl px-4 py-3 text-sm text-slate-100 placeholder-slate-500 focus:outline-none focus:border-brand-500/60 focus:ring-1 focus:ring-brand-500/30;
+    @apply bg-surface-900 border border-surface-600 rounded-xl px-4 py-3 text-sm text-slate-100 placeholder-slate-500 focus:outline-none focus:border-brand-500;
   }
   .report-prose h1 {
     @apply text-lg font-semibold text-slate-100 mt-6 mb-3;
@@ -66,7 +146,7 @@ body {
     @apply px-3 py-2 border border-surface-600 text-slate-300;
   }
   .report-prose blockquote {
-    @apply border-l-2 border-brand-500/50 pl-4 text-slate-400 italic my-3;
+    @apply border-l-2 border-brand-500 pl-4 text-slate-400 italic my-3;
   }
   .report-prose hr {
     @apply border-surface-600 my-6;
@@ -76,5 +156,11 @@ body {
   }
   .report-prose strong {
     @apply text-slate-100 font-semibold;
+  }
+  .report-prose code {
+    @apply bg-surface-700 text-accent-green px-1.5 py-0.5 rounded text-xs font-mono;
+  }
+  .report-prose ol {
+    @apply list-decimal ml-5 text-sm text-slate-300 space-y-1 mb-3;
   }
 }

@@ -13,6 +13,7 @@ import testcasesRoutes from './routes/testcases';
 import scriptsRoutes from './routes/scripts';
 import runnerRoutes from './routes/runner';
 import reportsRoutes from './routes/reports';
+import platformRoutes from './routes/platform';
 import claudeAgent from './services/claudeAgent';
 import { getProviderSetupHint } from './services/providers';
 
@@ -40,6 +41,7 @@ app.use('/api/testcases', testcasesRoutes);
 app.use('/api/scripts', scriptsRoutes);
 app.use('/api/runner', runnerRoutes);
 app.use('/api/reports', reportsRoutes);
+app.use('/api/platform', platformRoutes);
 
 app.get('/api/health', (_req, res) => {
   const ai = claudeAgent.getProviderInfo();

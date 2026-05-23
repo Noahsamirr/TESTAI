@@ -109,4 +109,54 @@ export async function getReports(sessionId: string) {
   return data;
 }
 
+export async function getPlatformDashboard() {
+  const { data } = await api.get('/platform/dashboard');
+  return data;
+}
+
+export async function getPlatformRuns() {
+  const { data } = await api.get('/platform/runs');
+  return data;
+}
+
+export async function getPlatformCapabilities() {
+  const { data } = await api.get('/platform/capabilities');
+  return data;
+}
+
+export async function startLiveSession(body: {
+  url: string;
+  browser: string;
+  os: string;
+  resolution: string;
+}) {
+  const { data } = await api.post('/platform/live/start', body);
+  return data;
+}
+
+export async function reserveDevice(deviceId: string) {
+  const { data } = await api.post(`/platform/devices/${deviceId}/reserve`);
+  return data;
+}
+
+export async function releaseDevice(deviceId: string) {
+  const { data } = await api.post(`/platform/devices/${deviceId}/release`);
+  return data;
+}
+
+export async function getCiTemplate(provider: string, opts?: { projectName?: string }) {
+  const { data } = await api.get(`/platform/ci/${provider}`, { params: opts });
+  return data;
+}
+
+export async function getTunnelStatus() {
+  const { data } = await api.get('/platform/tunnel');
+  return data;
+}
+
+export async function runMatrix(scriptId: string, browsers: { browser: string; os: string }[]) {
+  const { data } = await api.post('/platform/matrix/run', { scriptId, browsers });
+  return data;
+}
+
 export default api;

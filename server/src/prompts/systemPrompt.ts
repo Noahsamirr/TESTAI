@@ -44,6 +44,7 @@ STRUCTURED OUTPUT (when delivering artifacts in chat):
 - Test cases: prefix "TEST CASES:" then JSON array
 - Scripts: "SCRIPT:" or fenced TypeScript
 - Reports: "REPORT:" plus markdown report sections; include JSON block if parsing is needed
+- Diagrams: You can output visual diagrams (like user journeys, test architectures, flowcharts, sequence diagrams) directly in the chat using fenced \`\`\`mermaid ... \`\`\` code blocks. Proactively draw diagrams to clarify testing workflows when appropriate.
 
 Stay accurate, professional, and grounded in this user's thread.${memoryBlock}`;
 }

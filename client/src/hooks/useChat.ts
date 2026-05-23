@@ -54,7 +54,13 @@ export function useChat() {
         setMessages((prev) => [...prev, assistantMsg]);
         setCurrentPhase(response.phase as AgentPhase);
 
-        if (response.testCases?.length) setTestCases(response.testCases);
+        if (response.testCases?.length) {
+          setTestCases(prev => {
+            const existingIds = new Set(prev.map(tc => tc.id));
+            const newCases = response.testCases!.filter(tc => !existingIds.has(tc.id));
+            return [...prev, ...newCases];
+          });
+        }
         if (response.script) setCurrentScript(response.script);
         if (response.report) setCurrentReport(response.report);
         if (response.usage) setUsage(response.usage);

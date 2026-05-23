@@ -64,11 +64,11 @@ export default function ScriptViewer({ script }: Props) {
         </SyntaxHighlighter>
       </div>
 
-      {script.dependencies.length > 0 && (
+      {(script.dependencies || []).length > 0 && (
         <div className="mb-3">
           <p className="text-xs text-gray-500 mb-1">Dependencies</p>
           <div className="flex flex-wrap gap-1">
-            {script.dependencies.map((dep) => (
+            {(script.dependencies || []).map((dep) => (
               <span key={dep} className="text-xs px-2 py-0.5 bg-surface-900 text-gray-400 rounded font-mono">
                 {dep}
               </span>
@@ -77,7 +77,7 @@ export default function ScriptViewer({ script }: Props) {
         </div>
       )}
 
-      {script.explanation?.length > 0 && (
+      {(script.explanation || []).length > 0 && (
         <div>
           <button
             onClick={() => setShowExplanation(!showExplanation)}
@@ -88,7 +88,7 @@ export default function ScriptViewer({ script }: Props) {
           </button>
           {showExplanation && (
             <div className="space-y-2">
-              {script.explanation.map((section, i) => (
+              {(script.explanation || []).map((section, i) => (
                 <div key={i} className="bg-surface-700 rounded-lg p-3 border border-surface-600">
                   <div className="flex items-center gap-2 mb-1">
                     <span className="text-sm font-medium text-gray-200">{section.section}</span>

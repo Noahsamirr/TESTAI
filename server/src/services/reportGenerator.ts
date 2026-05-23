@@ -210,8 +210,9 @@ Passed: ${report.passed}, Failed: ${report.failed}, Skipped: ${report.skipped}
 Bugs: ${report.bugs.length}
 Recommendations: ${report.recommendations.join('; ')}`;
 
-      const response = await claudeAgent.chat('summary', prompt);
-      return response.message;
+      // Use direct prompt completion (not chat) to avoid polluting session history / creating phantom sessions
+      const text = await claudeAgent.completeUserPrompt(prompt, 1024);
+      return text;
     } catch {
       return `Test suite "${report.testSuite}" completed with a pass rate of ${report.passRate}. ${report.passed} tests passed, ${report.failed} failed, and ${report.skipped} were skipped. ${report.bugs.length} bugs were identified requiring attention.`;
     }
