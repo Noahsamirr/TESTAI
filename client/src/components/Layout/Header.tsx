@@ -1,4 +1,4 @@
-import { PanelRightClose, PanelRightOpen, LogOut, Sun, Moon } from 'lucide-react';
+import { PanelRightClose, PanelRightOpen, LogOut, Sun, Moon, Zap, ShieldCheck } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { useAiProvider } from '../../hooks/useAiProvider';
 import { useAppTheme } from '../../context/ThemeContext';
@@ -16,48 +16,57 @@ export default function Header({ rightPanelCollapsed, onToggleRightPanel, onMana
   const { theme, toggleTheme, isDark } = useAppTheme();
 
   return (
-    <header className="h-14 border-b border-surface-600 flex items-center justify-between px-4 bg-surface-800 shrink-0 gap-4 transition-all duration-200">
-      <div className="flex items-center gap-2 shrink-0">
-        <span className="font-semibold text-brand-400 tracking-tight">TestMind</span>
-        <span className="text-xs text-gray-500 hidden sm:inline">
-          {aiLabel ?? 'QA Automation Agent'}
-        </span>
+    <header className="h-16 border-b border-surface-600/30 flex items-center justify-between px-6 bg-surface-900/80 backdrop-blur-xl shrink-0 gap-4 transition-all duration-300 z-50 sticky top-0">
+      <div className="flex items-center gap-4 shrink-0">
+        <div className="flex items-center gap-2 group cursor-default">
+           <div className="w-8 h-8 rounded-lg bg-brand-500 flex items-center justify-center shadow-lg shadow-brand-500/20 group-hover:rotate-12 transition-transform duration-300">
+              <Zap size={16} className="text-black" />
+           </div>
+           <span className="font-black text-white tracking-tighter text-xl italic">TestMind</span>
+        </div>
+        
+        {aiLabel && (
+          <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-surface-800 border border-surface-600/50 shadow-sm animate-in fade-in slide-in-from-left-2 duration-500">
+             <div className="w-1.5 h-1.5 rounded-full bg-brand-500 animate-pulse"></div>
+             <span className="text-[10px] font-bold text-slate-300 uppercase tracking-widest">
+               {aiLabel}
+             </span>
+          </div>
+        )}
       </div>
-      <div className="flex items-center gap-3 min-w-0 flex-1 justify-end">
+
+      <div className="flex items-center gap-4 min-w-0 flex-1 justify-end">
         <TokenBar onManagePlan={onManagePlan} />
+        
+        <div className="h-6 w-px bg-surface-600/30 mx-1"></div>
+
         <button
           onClick={toggleTheme}
-          className="p-2 hover:bg-surface-700 rounded-lg transition-all duration-200 text-gray-400 hover:text-brand-400 shrink-0 flex items-center justify-center relative overflow-hidden"
+          className="p-2.5 hover:bg-surface-800 rounded-xl transition-all duration-200 text-slate-400 hover:text-brand-500 shrink-0 flex items-center justify-center relative group"
           title={isDark ? 'Switch to Light theme' : 'Switch to Dark theme'}
         >
           {isDark ? (
-            <Sun size={18} className="transition-transform duration-300 hover:rotate-45" />
+            <Sun size={20} className="transition-transform duration-500 group-hover:rotate-90" />
           ) : (
-            <Moon size={18} className="transition-transform duration-300 hover:-rotate-12" />
+            <Moon size={20} className="transition-transform duration-500 group-hover:-rotate-12" />
           )}
         </button>
+
         {user && (
-          <div className="hidden sm:flex items-center gap-2 shrink-0 border-l border-surface-600 pl-3">
-            <span className="text-xs text-gray-400 truncate max-w-[120px]" title={user.email}>
-              {user.name || user.email}
-            </span>
-            <button
-              type="button"
-              onClick={logout}
-              className="p-2 hover:bg-surface-700 rounded-lg text-gray-500 hover:text-red-400 transition-colors"
-              title="Sign out"
-            >
-              <LogOut size={16} />
-            </button>
+          <div className="hidden sm:flex items-center gap-3 shrink-0 pl-1">
+            <div className="flex flex-col items-end mr-1">
+               <span className="text-[11px] font-bold text-white truncate max-w-[120px]">
+                 {user.name || user.email.split('@')[0]}
+               </span>
+               <span className="text-[9px] font-bold text-slate-500 uppercase tracking-tighter">
+                 {user.plan || 'Free'} Plan
+               </span>
+            </div>
+            <div className="w-9 h-9 rounded-xl bg-surface-800 border border-surface-600/50 flex items-center justify-center text-brand-500 shadow-panel">
+               <ShieldCheck size={18} />
+            </div>
           </div>
         )}
-        <button
-          onClick={onToggleRightPanel}
-          className="p-2 hover:bg-surface-700 rounded-lg transition-colors text-gray-400 shrink-0"
-          title={rightPanelCollapsed ? 'Show panel' : 'Hide panel'}
-        >
-          {rightPanelCollapsed ? <PanelRightOpen size={18} /> : <PanelRightClose size={18} />}
-        </button>
       </div>
     </header>
   );

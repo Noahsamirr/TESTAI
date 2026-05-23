@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { TestCase, TestReport } from '../../types';
 import Mermaid from './Mermaid';
 import { HelpCircle } from 'lucide-react';
+import { escapeMermaidLabel } from '../../utils/mermaidUtils';
 
 interface Props {
   testCases?: TestCase[];
@@ -24,16 +25,17 @@ export default function Visualizer({ testCases = [], report }: Props) {
     mermaidText += '  classDef outcome fill:#064e3b,stroke:#059669,stroke-width:1px,color:#34d399;\n\n';
 
     // Title / Starting Point
-    const safeTitle = tc.title.replace(/"/g, "'");
-    mermaidText += `  Start["Test: ${tc.id}\\n${safeTitle}"]:::start\n`;
+    const safeTitle = escapeMermaidLabel(tc.title);
+    mermaidText += `  Start[${safeTitle}]:::start\n`;
 
     let prevNode = 'Start';
 
     // Preconditions
     const preconditions = tc.preconditions || [];
     if (preconditions.length > 0) {
-      const preText = preconditions.map(p => `- ${p}`).join('\\n').replace(/"/g, "'");
-      mermaidText += `  Pre["Preconditions:\\n${preText}"]:::start\n`;
+      const preText = preconditions.map(p => `- ${p}`).join('\\n');
+      const safePre = escapeMermaidLabel(`Preconditions:\\n${preText}`);
+      mermaidText += `  Pre[${safePre}]:::start\n`;
       mermaidText += `  Start --> Pre\n`;
       prevNode = 'Pre';
     }
@@ -43,11 +45,11 @@ export default function Visualizer({ testCases = [], report }: Props) {
     steps.forEach((step, idx) => {
       const stepId = `Step${idx}`;
       const assertId = `Assert${idx}`;
-      const safeAction = (step.action || '').replace(/"/g, "'");
-      const safeExpected = (step.expectedResult || '').replace(/"/g, "'");
+      const safeAction = escapeMermaidLabel(`${step.stepNumber}. ${step.action || ''}`);
+      const safeExpected = escapeMermaidLabel(`Expected: ${step.expectedResult || ''}`);
 
-      mermaidText += `  ${stepId}["${step.stepNumber}. ${safeAction}"]:::step\n`;
-      mermaidText += `  ${assertId}["Expected: ${safeExpected}"]:::assert\n`;
+      mermaidText += `  ${stepId}[${safeAction}]:::step\n`;
+      mermaidText += `  ${assertId}[${safeExpected}]:::assert\n`;
 
       mermaidText += `  ${prevNode} --> ${stepId}\n`;
       mermaidText += `  ${stepId} --> ${assertId}\n`;
@@ -56,8 +58,8 @@ export default function Visualizer({ testCases = [], report }: Props) {
 
     // Final Outcome
     if (tc.expectedOutcome) {
-      const safeOutcome = tc.expectedOutcome.replace(/"/g, "'");
-      mermaidText += `  Outcome["Expected Outcome:\\n${safeOutcome}"]:::outcome\n`;
+      const safeOutcome = escapeMermaidLabel(`Expected Outcome:\\n${tc.expectedOutcome}`);
+      mermaidText += `  Outcome[${safeOutcome}]:::outcome\n`;
       mermaidText += `  ${prevNode} --> Outcome\n`;
     }
 
@@ -75,11 +77,11 @@ export default function Visualizer({ testCases = [], report }: Props) {
     mermaidText += '  Suite["Test Suite Overview"]:::root\n';
 
     cases.forEach((tc) => {
-      const safeTitle = tc.title.length > 25 ? tc.title.substring(0, 22) + '...' : tc.title;
-      const cleanTitle = safeTitle.replace(/"/g, "'");
+      const truncatedTitle = tc.title.length > 25 ? tc.title.substring(0, 22) + '...' : tc.title;
+      const cleanTitle = escapeMermaidLabel(`${tc.id}: ${truncatedTitle}`);
       const priorityClass = tc.priority === 'High' ? 'high' : tc.priority === 'Medium' ? 'medium' : 'low';
       
-      mermaidText += `  ${tc.id}["${tc.id}: ${cleanTitle}"]:::case\n`;
+      mermaidText += `  ${tc.id}[${cleanTitle}]:::case\n`;
       mermaidText += `  Suite -->|${tc.priority}| ${tc.id}\n`;
     });
 
@@ -95,8 +97,8 @@ export default function Visualizer({ testCases = [], report }: Props) {
     mermaidText += '  classDef decision fill:#78350f,stroke:#d97706,stroke-width:2px,color:#fffbeb;\n';
     mermaidText += '  classDef bug fill:#451a03,stroke:#b45309,stroke-width:1px,color:#fef3c7;\n\n';
 
-    const safeSuite = rep.testSuite.replace(/"/g, "'");
-    mermaidText += `  Suite["Suite: ${safeSuite}\\nEnv: ${rep.environment}"]:::suite\n`;
+    const safeSuite = escapeMermaidLabel(`Suite: ${rep.testSuite}\\nEnv: ${rep.environment}`);
+    mermaidText += `  Suite[${safeSuite}]:::suite\n`;
     mermaidText += `  Passed["Passed: ${rep.passed}"]:::pass\n`;
     mermaidText += `  Failed["Failed: ${rep.failed}"]:::fail\n`;
     mermaidText += `  Skipped["Skipped: ${rep.skipped}"]:::skip\n`;

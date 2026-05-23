@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import mermaid from 'mermaid';
+import { sanitizeMermaid } from '../../utils/mermaidUtils';
 
 mermaid.initialize({
   startOnLoad: false,
@@ -35,10 +36,12 @@ export default function Mermaid({ chart }: Props) {
       try {
         setError(null);
         if (active) {
-          const cleanChart = chart
-            .replace(/&gt;/g, '>')
-            .replace(/&lt;/g, '<')
-            .trim();
+          const cleanChart = sanitizeMermaid(chart);
+          
+          if (!cleanChart) {
+            setSvg('');
+            return;
+          }
           
           const { svg: renderedSvg } = await mermaid.render(elementId, cleanChart);
           if (active) {

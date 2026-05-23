@@ -175,19 +175,36 @@ class ClaudeAgent {
     const fenced = text.match(/```(?:json)?\s*([\s\S]*?)```/);
     const raw = fenced ? fenced[1] : text;
 
-    const start = raw.indexOf('[') >= 0 ? raw.indexOf('[') : raw.indexOf('{');
+    // Look for both [ and { and take the one that appears first
+    const firstBracket = raw.indexOf('[');
+    const firstBrace = raw.indexOf('{');
+    
+    let start = -1;
+    if (firstBracket >= 0 && firstBrace >= 0) {
+      start = Math.min(firstBracket, firstBrace);
+    } else {
+      start = firstBracket >= 0 ? firstBracket : firstBrace;
+    }
+
     if (start < 0) return null;
 
-    const isArray = raw[start] === '[';
     let depth = 0;
+    let found = false;
+    const openChar = raw[start];
+    const closeChar = openChar === '[' ? ']' : '}';
+
     for (let i = start; i < raw.length; i++) {
-      if (raw[i] === '[' || raw[i] === '{') depth++;
-      if (raw[i] === ']' || raw[i] === '}') depth--;
+      if (raw[i] === openChar) depth++;
+      else if (raw[i] === closeChar) depth--;
+
       if (depth === 0) {
         try {
-          return JSON.parse(raw.slice(start, i + 1)) as T;
+          const candidate = raw.slice(start, i + 1);
+          const parsed = JSON.parse(candidate);
+          return parsed as T;
         } catch {
-          return null;
+          // If parsing fails, continue searching (maybe there's another nested block)
+          continue;
         }
       }
     }

@@ -161,7 +161,12 @@ class ScriptRunnerService extends EventEmitter {
 
   parsePlaywrightResults(output: string): TestResult[] {
     try {
-      const json = JSON.parse(output);
+      // Playwright might output extra text before the JSON block
+      const start = output.indexOf('{');
+      if (start < 0) return this.parseGenericResults(output);
+      
+      const rawJson = output.slice(start);
+      const json = JSON.parse(rawJson);
       const suites = json.suites || json;
       const results: TestResult[] = [];
 

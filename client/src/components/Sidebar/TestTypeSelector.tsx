@@ -1,10 +1,12 @@
+import { Layers, Smartphone, Cpu, ShieldCheck, Accessibility, Gauge } from 'lucide-react';
+
 const testTypes = [
-  { id: 'e2e', label: 'E2E Web', tag: 'WEB', description: 'Playwright' },
-  { id: 'mobile', label: 'Mobile', tag: 'MOB', description: 'Appium' },
-  { id: 'api', label: 'API', tag: 'API', description: 'Axios + Jest' },
-  { id: 'perf', label: 'Performance', tag: 'PERF', description: 'Load testing' },
-  { id: 'security', label: 'Security', tag: 'SEC', description: 'Vuln scanning' },
-  { id: 'a11y', label: 'Accessibility', tag: 'A11Y', description: 'WCAG' },
+  { id: 'e2e', label: 'E2E Web', tag: 'WEB', icon: Layers },
+  { id: 'mobile', label: 'Mobile', tag: 'MOB', icon: Smartphone },
+  { id: 'api', label: 'API', tag: 'API', icon: Cpu },
+  { id: 'perf', label: 'Performance', tag: 'PERF', icon: Gauge },
+  { id: 'security', label: 'Security', tag: 'SEC', icon: ShieldCheck },
+  { id: 'a11y', label: 'Accessibility', tag: 'A11Y', icon: Accessibility },
 ];
 
 interface Props {
@@ -14,29 +16,25 @@ interface Props {
 
 export default function TestTypeSelector({ selected, onSelect }: Props) {
   return (
-    <div>
-      <h3 className="text-xs font-medium text-gray-500 uppercase tracking-wider mb-3">Test types</h3>
-      <div className="space-y-1">
-        {testTypes.map((type) => (
+    <div className="flex items-center gap-2 overflow-x-auto no-scrollbar py-1">
+      {testTypes.map((type) => {
+        const Icon = type.icon;
+        const isActive = selected === type.label;
+        return (
           <button
             key={type.id}
             onClick={() => onSelect(type.label)}
-            className={`w-full flex items-center gap-2 px-3 py-2 rounded-lg text-left transition-colors ${
-              selected === type.label
-                ? 'bg-accent-green/10 text-accent-green border border-accent-green/30'
-                : 'hover:bg-surface-700 text-gray-400'
+            className={`flex items-center gap-2 px-3 py-1.5 rounded-lg whitespace-nowrap transition-all duration-200 border ${
+              isActive
+                ? 'bg-brand-500/10 text-brand-500 border-brand-500/30'
+                : 'bg-surface-800 text-slate-500 border-surface-600/30 hover:text-slate-200 hover:border-surface-600'
             }`}
           >
-            <span className="text-[10px] font-mono font-semibold w-8 text-center text-gray-500 shrink-0">
-              {type.tag}
-            </span>
-            <div>
-              <p className="text-xs font-medium">{type.label}</p>
-              <p className="text-xs text-gray-600">{type.description}</p>
-            </div>
+            <Icon size={14} className={isActive ? 'text-brand-500' : 'text-slate-500'} />
+            <span className="text-[11px] font-bold tracking-tight">{type.label}</span>
           </button>
-        ))}
-      </div>
+        );
+      })}
     </div>
   );
 }

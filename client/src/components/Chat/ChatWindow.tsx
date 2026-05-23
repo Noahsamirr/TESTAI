@@ -2,6 +2,7 @@ import { useEffect, useRef } from 'react';
 import { Message } from '../../types';
 import MessageBubble from './MessageBubble';
 import TypingIndicator from './TypingIndicator';
+import { Bot, Sparkles, MessageSquare, Zap, ShieldCheck, Cpu } from 'lucide-react';
 
 interface Props {
   messages: Message[];
@@ -19,38 +20,51 @@ export default function ChatWindow({ messages, isLoading, onQuickStart }: Props)
   const showWelcome = messages.length <= 1;
 
   return (
-    <div className="flex-1 overflow-y-auto py-4">
+    <div className="min-h-full py-6 px-4">
       {showWelcome && (
-        <div className="flex flex-col items-center justify-center py-12 px-8 text-center">
-          <h2 className="text-xl font-semibold text-accent-green mb-2">TestMind</h2>
-          <p className="text-gray-400 text-sm mb-6 max-w-md leading-relaxed">
-            Describe what you want to test, or choose a starting point below. I will remember what you share as we go.
+        <div className="flex flex-col items-center justify-center py-16 px-6 text-center animate-in fade-in zoom-in duration-700">
+          <div className="w-16 h-16 rounded-[2rem] bg-brand-500 flex items-center justify-center mb-6 shadow-2xl shadow-brand-500/20 group hover:rotate-12 transition-transform duration-500">
+             <Bot size={32} className="text-black" />
+          </div>
+          <h2 className="text-2xl font-black text-white mb-3 tracking-tight italic">TestMind AI</h2>
+          <p className="text-slate-500 text-sm mb-10 max-w-md leading-relaxed font-medium">
+            Your senior QA partner for automated testing. Describe your scenario, and I'll generate test cases, scripts, and reports.
           </p>
-          <div className="flex flex-wrap gap-2 justify-center">
+          
+          <div className="grid grid-cols-2 gap-2.5 max-w-lg w-full">
             {[
-              'I want to create E2E web tests',
-              'I want to create mobile tests',
-              'I want to create API tests',
-              'I want to create performance tests',
-            ].map((prompt) => (
+              { text: 'E2E web tests', icon: Zap, prompt: 'I want to create E2E web tests' },
+              { text: 'Mobile tests', icon: Sparkles, prompt: 'I want to create mobile tests' },
+              { text: 'API testing', icon: Cpu, prompt: 'I want to create API tests' },
+              { text: 'Performance', icon: ShieldCheck, prompt: 'I want to create performance tests' },
+            ].map((item) => (
               <button
-                key={prompt}
-                onClick={() => onQuickStart(prompt)}
-                className="px-3 py-1.5 text-xs bg-surface-700 hover:bg-surface-600 text-accent-green border border-surface-600 rounded-full transition-colors"
+                key={item.text}
+                onClick={() => onQuickStart(item.prompt)}
+                className="group flex items-center gap-2.5 px-4 py-3 bg-surface-900/50 hover:bg-surface-800 text-slate-400 hover:text-brand-500 border border-surface-600/30 rounded-xl transition-all duration-300 hover:scale-[1.01] hover:shadow-xl hover:border-brand-500/20"
               >
-                {prompt.replace('I want to create ', '')}
+                <div className="p-1.5 rounded-lg bg-surface-800 group-hover:bg-brand-500/10 transition-colors">
+                  <item.icon size={14} className="group-hover:animate-pulse" />
+                </div>
+                <span className="text-xs font-bold tracking-tight">{item.text}</span>
               </button>
             ))}
           </div>
         </div>
       )}
 
-      {messages.map((msg) => (
-        <MessageBubble key={msg.id} message={msg} />
-      ))}
+      <div className="max-w-3xl mx-auto space-y-1.5">
+        {messages.map((msg) => (
+          <MessageBubble key={msg.id} message={msg} />
+        ))}
+      </div>
 
-      {isLoading && <TypingIndicator />}
-      <div ref={bottomRef} />
+      {isLoading && (
+        <div className="max-w-3xl mx-auto px-4 py-3">
+          <TypingIndicator />
+        </div>
+      )}
+      <div ref={bottomRef} className="h-2" />
     </div>
   );
 }

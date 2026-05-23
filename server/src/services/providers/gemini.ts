@@ -1,17 +1,17 @@
-import axios from 'axios';
+import { GoogleGenAI } from "@google/genai";
 import { AIProvider, CompleteParams } from './types';
-
-const GEMINI_BASE = 'https://generativelanguage.googleapis.com/v1beta';
 
 export class GeminiProvider implements AIProvider {
   readonly name = 'gemini';
   readonly model: string;
+  private client: any;
 
   constructor(
     private apiKey: string,
-    model = process.env.GEMINI_MODEL || 'gemini-2.0-flash'
+    model = process.env.GEMINI_MODEL || 'gemini-3.5-flash'
   ) {
     this.model = model;
+    this.client = new GoogleGenAI({ apiKey: this.apiKey });
   }
 
   async complete({ system, messages, maxTokens }: CompleteParams): Promise<string> {
@@ -21,38 +21,30 @@ export class GeminiProvider implements AIProvider {
     }));
 
     try {
-      const { data } = await axios.post(
-        `${GEMINI_BASE}/models/${this.model}:generateContent`,
-        {
-          ...(system
-            ? { systemInstruction: { parts: [{ text: system }] } }
-            : {}),
-          contents,
-          generationConfig: {
-            maxOutputTokens: maxTokens,
-            temperature: 0.35,
+      const response = await this.client.models.generateContent({
+        model: this.model,
+        contents,
+        config: {
+          systemInstruction: system ? { parts: [{ text: system }] } : undefined,
+          maxOutputTokens: maxTokens,
+          // Thinking is enabled by default in 3.5 Flash, setting to MEDIUM as recommended
+          thinkingConfig: {
+            thinkingLevel: "MEDIUM",
           },
         },
-        {
-          params: { key: this.apiKey },
-          headers: { 'Content-Type': 'application/json' },
-          timeout: 180_000,
-        }
-      );
+      });
 
-      const text = data?.candidates?.[0]?.content?.parts?.[0]?.text;
+      const text = response.text;
       if (!text) {
-        const msg = data?.error?.message || 'Gemini returned an empty response';
-        throw new Error(msg);
+        throw new Error('Gemini returned an empty response');
       }
       return text;
     } catch (err: unknown) {
-      if (axios.isAxiosError(err) && err.response?.status === 429) {
-        const detail =
-          (err.response.data as { error?: { message?: string } })?.error?.message ||
-          'Gemini rate limit exceeded';
+      // Basic error handling for the new SDK
+      const errorMessage = err instanceof Error ? err.message : String(err);
+      if (errorMessage.includes('429')) {
         throw new Error(
-          `Gemini API rate limit (429): ${detail}. Wait a few minutes, check quota at https://aistudio.google.com/, or enable billing.`
+          `Gemini API rate limit (429): ${errorMessage}. Wait a few minutes, check quota at https://aistudio.google.com/, or enable billing.`
         );
       }
       throw err;

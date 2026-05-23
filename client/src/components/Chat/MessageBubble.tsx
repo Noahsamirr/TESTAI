@@ -4,6 +4,7 @@ import { oneDark } from 'react-syntax-highlighter/dist/esm/styles/prism';
 import { Message, AgentPhase } from '../../types';
 import { stripEmojis } from '../../utils/stripEmojis';
 import Mermaid from '../TestPanel/Mermaid';
+import { User, Bot, Clock } from 'lucide-react';
 
 const phaseLabels: Record<AgentPhase, string> = {
   questioning: 'Discovery',
@@ -38,52 +39,79 @@ export default function MessageBubble({ message }: Props) {
   const content = isUser ? rawContent : formatMermaidBlocks(rawContent);
 
   return (
-    <div className={`flex ${isUser ? 'justify-end' : 'justify-start'} mb-4 px-4`}>
-      <div
-        className={`max-w-[85%] rounded-2xl px-4 py-3 ${
-          isUser
-            ? 'bg-accent-green text-black rounded-br-sm font-sans'
-            : 'bg-surface-700 text-gray-100 rounded-bl-sm text-sm'
-        }`}
-      >
-        {!isUser && message.phase && message.id !== 'welcome' && (
-          <span className="inline-block text-xs text-accent-green/90 mb-2 font-sans uppercase tracking-wide">
-            {phaseLabels[message.phase]}
-          </span>
-        )}
-        {isUser ? (
-          <p className="text-sm leading-relaxed">{content}</p>
-        ) : (
-          <div className="prose prose-invert prose-sm max-w-none font-sans leading-relaxed">
-            <ReactMarkdown
-              components={{
-                code({ className, children, ...props }) {
-                  const match = /language-(\w+)/.exec(className || '');
-                  const code = String(children).replace(/\n$/, '');
-                  
-                  if (match && match[1] === 'mermaid') {
-                    return <Mermaid chart={code} />;
-                  }
-                  
-                  return match ? (
-                    <SyntaxHighlighter style={oneDark} language={match[1]} PreTag="div">
-                      {code}
-                    </SyntaxHighlighter>
-                  ) : (
-                    <code className="bg-surface-900 px-1 rounded text-accent-green font-mono text-xs" {...props}>
-                      {children}
-                    </code>
-                  );
-                },
-              }}
-            >
-              {content}
-            </ReactMarkdown>
+    <div className={`flex ${isUser ? 'justify-end' : 'justify-start'} mb-4 px-2 animate-in fade-in slide-in-from-bottom-1 duration-300`}>
+      <div className={`flex max-w-[90%] gap-2.5 ${isUser ? 'flex-row-reverse' : 'flex-row'}`}>
+        {/* Avatar */}
+        <div className={`w-8 h-8 shrink-0 rounded-xl flex items-center justify-center shadow-soft ${
+          isUser ? 'bg-brand-500' : 'bg-surface-800 border border-surface-600/30'
+        }`}>
+          {isUser ? <User size={14} className="text-black" /> : <Bot size={14} className="text-brand-500" />}
+        </div>
+
+        {/* Bubble */}
+        <div className="flex flex-col space-y-0.5">
+          <div className={`flex items-center gap-2 mb-0.5 ${isUser ? 'flex-row-reverse' : 'flex-row'}`}>
+             <span className="text-[10px] font-bold text-slate-500 tracking-wide uppercase">
+                {isUser ? 'You' : 'TestMind'}
+             </span>
+             {!isUser && message.phase && message.id !== 'welcome' && (
+                <span className="px-1.5 py-0.5 rounded bg-brand-500/10 text-brand-500 text-[9px] font-bold uppercase tracking-wider border border-brand-500/20">
+                  {phaseLabels[message.phase]}
+                </span>
+             )}
           </div>
-        )}
-        <p className={`text-xs mt-2 ${isUser ? 'text-black/50' : 'text-gray-500'}`}>
-          {message.timestamp.toLocaleTimeString()}
-        </p>
+
+          <div
+            className={`relative rounded-xl px-4 py-3 shadow-soft transition-all ${
+              isUser
+                ? 'bg-brand-500 text-black rounded-tr-none'
+                : 'bg-surface-800 text-slate-200 rounded-tl-none border border-surface-600/20'
+            }`}
+          >
+            {isUser ? (
+              <p className="text-[13px] font-medium leading-relaxed whitespace-pre-wrap">{content}</p>
+            ) : (
+              <div className="prose prose-invert prose-xs max-w-none font-sans leading-relaxed prose-p:my-1 prose-pre:my-2 prose-headings:my-2">
+                <ReactMarkdown
+                  components={{
+                    code({ className, children, ...props }) {
+                      const match = /language-(\w+)/.exec(className || '');
+                      const code = String(children).replace(/\n$/, '');
+                      
+                      if (match && match[1] === 'mermaid') {
+                        return <div className="scale-95 origin-top-left"><Mermaid chart={code} /></div>;
+                      }
+                      
+                      return match ? (
+                        <div className="rounded-lg overflow-hidden my-3 border border-surface-600/30 shadow-2xl">
+                          <SyntaxHighlighter 
+                            style={oneDark} 
+                            language={match[1]} 
+                            PreTag="div"
+                            customStyle={{ margin: 0, padding: '1rem', fontSize: '11px' }}
+                          >
+                            {code}
+                          </SyntaxHighlighter>
+                        </div>
+                      ) : (
+                        <code className="bg-surface-900 px-1.5 py-0.5 rounded-md text-brand-500 font-mono text-[10px] border border-surface-600/30" {...props}>
+                          {children}
+                        </code>
+                      );
+                    },
+                  }}
+                >
+                  {content}
+                </ReactMarkdown>
+              </div>
+            )}
+          </div>
+          
+          <div className={`flex items-center gap-1 text-[9px] text-slate-600 font-medium ${isUser ? 'justify-end' : 'justify-start'}`}>
+             <Clock size={9} />
+             {message.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+          </div>
+        </div>
       </div>
     </div>
   );
