@@ -89,13 +89,18 @@ export default function AIAssistantView() {
   }, [isRunning, currentReport, currentScript, testCases.length]);
 
   const handleRunTests = async () => {
+    if (!currentScript?.id) {
+      setTerminalLogs([{ text: 'No script available to run. Please generate a script first.', isError: true }]);
+      setActiveRightTab('terminal');
+      return;
+    }
+
     setIsRunning(true);
     setTerminalLogs([{ text: 'Initializing test runner...', isError: false }]);
     wsService.connect();
 
     try {
-      const scriptId = currentScript?.id || 'demo';
-      const { runnerId: id } = await runScript(scriptId, currentScript?.framework || 'playwright');
+      const { runnerId: id } = await runScript(currentScript.id, currentScript.framework || 'playwright');
       setRunnerId(id);
       wsService.subscribe(id);
 

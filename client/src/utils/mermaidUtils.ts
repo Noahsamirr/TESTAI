@@ -32,15 +32,19 @@ export function sanitizeMermaid(chart: string): string {
   }
 
   // Handle sequenceDiagram typos
-  if (clean.toLowerCase().startsWith('sequencediagram')) {
-    // 1. Ensure a newline after sequenceDiagram
-    clean = clean.replace(/^sequencediagram\s*/i, 'sequenceDiagram\n');
+  if (clean.toLowerCase().includes('sequencediagram')) {
+    // 1. Ensure sequenceDiagram is its own line
+    clean = clean.replace(/sequencediagram\s*/i, 'sequenceDiagram\n');
     
-    // 2. Ensure a newline after autonumber
-    clean = clean.replace(/\nautonumber\s+([^\n])/i, '\nautonumber\n$1');
-    
-    // 3. Fix cases where keywords are smashed together like "sequenceDiagramautonumber"
-    clean = clean.replace(/^sequenceDiagramautonumber/i, 'sequenceDiagram\nautonumber\n');
+    // 2. Ensure keywords like autonumber, actor, participant are on their own lines
+    const keywords = ['autonumber', 'actor', 'participant', 'Note', 'loop', 'alt', 'opt'];
+    keywords.forEach(kw => {
+      const regex = new RegExp(`(\\s|^)${kw}\\s+`, 'gi');
+      clean = clean.replace(regex, (match) => `\n${match.trim()}\n`);
+    });
+
+    // 3. Clean up multiple newlines
+    clean = clean.split('\n').map(l => l.trim()).filter(l => l).join('\n');
   }
 
   // If no diagram type is specified, prepend 'flowchart TD'

@@ -33,7 +33,8 @@ router.post('/', requireAuth, async (req: Request, res: Response) => {
     }
 
     if (response.script) {
-      saveScript(sessionId, response.script);
+      const scriptId = saveScript(sessionId, response.script);
+      response.script.id = scriptId;
     }
 
     if (response.report) {
