@@ -99,6 +99,11 @@ export async function getTestCases(sessionId: string): Promise<TestCase[]> {
   return data;
 }
 
+export async function updateScript(scriptId: string, code: string): Promise<{ success: boolean; script: GeneratedScript }> {
+  const { data } = await api.post('/scripts/update', { scriptId, code });
+  return data;
+}
+
 export async function runScript(scriptId: string, framework: string): Promise<{ runnerId: string; status: string }> {
   const { data } = await api.post('/runner/run', { scriptId, framework });
   return data;

@@ -31,6 +31,7 @@ export default function AIAssistantView() {
     sessionId,
     testCases,
     currentScript,
+    setCurrentScript,
     currentReport,
     setCurrentReport,
     sendMessage,
@@ -133,10 +134,21 @@ export default function AIAssistantView() {
     }
   };
 
+  // Check if screen is lg (desktop view) or mobile/tablet
+  const [isLargeScreen, setIsLargeScreen] = useState(window.innerWidth >= 1024);
+
+  useEffect(() => {
+    const handleResize = () => {
+      setIsLargeScreen(window.innerWidth >= 1024);
+    };
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
   const handleQuickStart = (text: string) => sendMessage(text);
 
   return (
-    <div className="flex h-full w-full bg-surface-950 overflow-hidden">
+    <div className="flex flex-col lg:flex-row h-full w-full bg-surface-950 overflow-hidden">
       {/* Left Chat Area */}
       <div className="flex-1 flex flex-col min-w-0 bg-surface-950 relative overflow-hidden">
         <div className="p-3 border-b border-surface-600/30 flex gap-3 items-center bg-surface-900/40 backdrop-blur-md sticky top-0 z-20 shrink-0">
@@ -165,13 +177,13 @@ export default function AIAssistantView() {
       {/* Resize Handle */}
       <div 
         onMouseDown={startResizing}
-        className="w-1 cursor-col-resize hover:bg-brand-500/50 bg-surface-600/20 transition-colors z-30 shrink-0"
+        className="hidden lg:block w-1 cursor-col-resize hover:bg-brand-500/50 bg-surface-600/20 transition-colors z-30 shrink-0"
       />
 
       {/* Right Output Area */}
       <div 
-        style={{ width: `${rightPanelWidth}px` }}
-        className="shrink-0 bg-surface-900/50 border-l border-surface-600/30 flex flex-col shadow-2xl z-10 overflow-hidden"
+        style={isLargeScreen ? { width: `${rightPanelWidth}px` } : { width: '100%', height: '50%' }}
+        className="shrink-0 bg-surface-900/50 border-t lg:border-t-0 lg:border-l border-surface-600/30 flex flex-col shadow-2xl z-10 overflow-hidden"
       >
          {/* Tab header */}
          <div className="flex border-b border-surface-600/30 bg-surface-900/80 backdrop-blur-md p-1.5 overflow-x-auto sticky top-0 z-20 shrink-0 no-scrollbar">
@@ -204,7 +216,15 @@ export default function AIAssistantView() {
              )}
              {activeRightTab === 'script' && currentScript && (
                <div className="space-y-4 max-w-5xl mx-auto">
-                 <ScriptViewer script={currentScript} />
+                 <ScriptViewer 
+                   script={currentScript} 
+                   onCodeChange={(newCode) => {
+                     setCurrentScript({
+                       ...currentScript,
+                       code: newCode
+                     });
+                   }}
+                 />
                  <RunButton onRun={handleRunTests} isRunning={isRunning} />
                </div>
              )}

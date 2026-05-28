@@ -61,11 +61,11 @@ router.post('/run', attachUserIfPresent, async (req: Request, res: Response) => 
       try {
         let result: { runnerId: string; results: { status: string }[] };
         if (fw.includes('appium') || fw.includes('wdio')) {
-          result = await scriptRunner.runAppiumScript(scriptPath);
+          result = await scriptRunner.runAppiumScript(scriptPath, { runnerId: immediateRunnerId });
         } else if (fw.includes('jest') || fw.includes('api')) {
-          result = await scriptRunner.runApiTests(scriptPath);
+          result = await scriptRunner.runApiTests(scriptPath, { runnerId: immediateRunnerId });
         } else {
-          result = await scriptRunner.runPlaywrightScript(scriptPath);
+          result = await scriptRunner.runPlaywrightScript(scriptPath, { runnerId: immediateRunnerId });
         }
         const passed = result.results.filter((r) => r.status === 'passed').length;
         const failed = result.results.filter((r) => r.status === 'failed').length;

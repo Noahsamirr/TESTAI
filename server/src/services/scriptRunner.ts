@@ -8,6 +8,7 @@ import claudeAgent from './claudeAgent';
 interface RunnerOptions {
   timeout?: number;
   env?: Record<string, string>;
+  runnerId?: string;
 }
 
 interface ActiveRunner {
@@ -23,7 +24,7 @@ class ScriptRunnerService extends EventEmitter {
     scriptPath: string,
     options: RunnerOptions = {}
   ): Promise<{ runnerId: string; results: TestResult[] }> {
-    const runnerId = uuidv4();
+    const runnerId = options.runnerId || uuidv4();
     this.emitWSEvent({ type: 'runner:start', runnerId, framework: 'playwright' });
 
     return new Promise((resolve, reject) => {
@@ -90,7 +91,7 @@ class ScriptRunnerService extends EventEmitter {
     scriptPath: string,
     options: RunnerOptions = {}
   ): Promise<{ runnerId: string; results: TestResult[] }> {
-    const runnerId = uuidv4();
+    const runnerId = options.runnerId || uuidv4();
     this.emitWSEvent({ type: 'runner:start', runnerId, framework: 'appium' });
 
     return new Promise((resolve, reject) => {
@@ -129,8 +130,8 @@ class ScriptRunnerService extends EventEmitter {
     });
   }
 
-  async runApiTests(scriptPath: string): Promise<{ runnerId: string; results: TestResult[] }> {
-    const runnerId = uuidv4();
+  async runApiTests(scriptPath: string, options: RunnerOptions = {}): Promise<{ runnerId: string; results: TestResult[] }> {
+    const runnerId = options.runnerId || uuidv4();
     this.emitWSEvent({ type: 'runner:start', runnerId, framework: 'jest' });
 
     return new Promise((resolve, reject) => {

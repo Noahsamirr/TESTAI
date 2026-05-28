@@ -40,7 +40,7 @@ export default function MessageBubble({ message }: Props) {
 
   return (
     <div className={`flex ${isUser ? 'justify-end' : 'justify-start'} mb-4 px-2 animate-in fade-in slide-in-from-bottom-1 duration-300`}>
-      <div className={`flex max-w-[90%] gap-2.5 ${isUser ? 'flex-row-reverse' : 'flex-row'}`}>
+      <div className={`flex max-w-[90%] min-w-0 gap-2.5 ${isUser ? 'flex-row-reverse' : 'flex-row'}`}>
         {/* Avatar */}
         <div className={`w-8 h-8 shrink-0 rounded-xl flex items-center justify-center shadow-soft ${
           isUser ? 'bg-brand-500' : 'bg-surface-800 border border-surface-600/30'
@@ -49,7 +49,7 @@ export default function MessageBubble({ message }: Props) {
         </div>
 
         {/* Bubble */}
-        <div className="flex flex-col space-y-0.5">
+        <div className="flex flex-col space-y-0.5 min-w-0">
           <div className={`flex items-center gap-2 mb-0.5 ${isUser ? 'flex-row-reverse' : 'flex-row'}`}>
              <span className="text-[10px] font-bold text-slate-500 tracking-wide uppercase">
                 {isUser ? 'You' : 'TestMind'}
@@ -62,16 +62,16 @@ export default function MessageBubble({ message }: Props) {
           </div>
 
           <div
-            className={`relative rounded-xl px-4 py-3 shadow-soft transition-all ${
+            className={`relative rounded-xl px-4 py-3 shadow-soft transition-all break-words ${
               isUser
                 ? 'bg-brand-500 text-black rounded-tr-none'
                 : 'bg-surface-800 text-slate-200 rounded-tl-none border border-surface-600/20'
             }`}
           >
             {isUser ? (
-              <p className="text-[13px] font-medium leading-relaxed whitespace-pre-wrap">{content}</p>
+              <p className="text-[13px] font-medium leading-relaxed whitespace-pre-wrap break-words">{content}</p>
             ) : (
-              <div className="prose prose-invert prose-xs max-w-none font-sans leading-relaxed prose-p:my-1 prose-pre:my-2 prose-headings:my-2">
+              <div className="prose prose-invert prose-xs max-w-none font-sans leading-relaxed prose-p:my-1 prose-pre:my-2 prose-headings:my-2 break-words">
                 <ReactMarkdown
                   components={{
                     code({ className, children, ...props }) {
