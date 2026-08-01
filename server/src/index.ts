@@ -5,6 +5,7 @@ import http from 'http';
 import { WebSocketServer, WebSocket } from 'ws';
 import { initializeDB } from './db/schema';
 import scriptRunner from './services/scriptRunner';
+import performanceRunner from './services/performanceRunner';
 import { WSEvent } from './types';
 
 import authRoutes from './routes/auth';
@@ -14,8 +15,17 @@ import scriptsRoutes from './routes/scripts';
 import runnerRoutes from './routes/runner';
 import reportsRoutes from './routes/reports';
 import platformRoutes from './routes/platform';
+import visualRoutes from './routes/visual';
+import performanceRoutes from './routes/performance';
+import securityRoutes from './routes/security';
+import aiEvalsRoutes from './routes/ai-evals';
+import agentsRoutes from './routes/agents';
+import apiTestingRoutes from './routes/api-testing';
+import testDataRoutes from './routes/test-data';
+import settingsRoutes from './routes/settings';
 import claudeAgent from './services/claudeAgent';
 import { getProviderSetupHint } from './services/providers';
+import agentOrchestrator from './services/agentOrchestrator';
 
 try {
   claudeAgent.getProviderInfo();
@@ -29,7 +39,7 @@ const PORT = process.env.PORT || 3001;
 
 app.use(
   cors({
-    origin: ['http://localhost:5173', 'http://127.0.0.1:5173'],
+    origin: ['http://localhost:5173', 'http://127.0.0.1:5173', 'http://localhost:5174', 'http://127.0.0.1:5174'],
     credentials: true,
   })
 );
@@ -42,13 +52,29 @@ app.use('/api/scripts', scriptsRoutes);
 app.use('/api/runner', runnerRoutes);
 app.use('/api/reports', reportsRoutes);
 app.use('/api/platform', platformRoutes);
+app.use('/api/visual', visualRoutes);
+app.use('/api/performance', performanceRoutes);
+app.use('/api/security', securityRoutes);
+app.use('/api/ai-evals', aiEvalsRoutes);
+app.use('/api/agents', agentsRoutes);
+app.use('/api/api-testing', apiTestingRoutes);
+app.use('/api/test-data', testDataRoutes);
+app.use('/api/settings', settingsRoutes);
 
 app.get('/api/health', (_req, res) => {
   const ai = claudeAgent.getProviderInfo();
+  const agents = agentOrchestrator.listAgents();
   res.json({
     status: 'ok',
     service: 'TestMind AI',
+    version: '3.0.0',
+    modules: [
+      'web', 'mobile', 'api-testing', 'visual', 'accessibility',
+      'performance', 'security', 'ai-evals', 'ci-cd',
+      'agents', 'test-data', 'self-healing', 'settings',
+    ],
     ai: { provider: ai.provider, model: ai.model },
+    agents: { count: agents.length, capabilities: agents.flatMap((a) => a.capabilities) },
   });
 });
 
@@ -101,6 +127,21 @@ scriptRunner.onWSEvent((event: WSEvent) => {
   }
 });
 
+function broadcastRunnerEvent(event: WSEvent) {
+  if (!('runnerId' in event)) return;
+  const subs = subscriptions.get(event.runnerId);
+  if (!subs) return;
+  const payload = JSON.stringify(event);
+  for (const ws of subs) {
+    if (ws.readyState === WebSocket.OPEN) ws.send(payload);
+  }
+}
+
+performanceRunner.on('log', (event: WSEvent) => broadcastRunnerEvent(event));
+performanceRunner.on('complete', (event: WSEvent) => broadcastRunnerEvent(event));
+performanceRunner.on('error', (event: WSEvent) => broadcastRunnerEvent(event));
+
 server.listen(PORT, () => {
-  console.log(`TestMind AI Server running on port ${PORT}`);
+  console.log(`QualityForge AI Server v2.0 running on port ${PORT}`);
+  console.log(`Modules: Web | Mobile | API | Visual/A11y | Performance | Security | AI-Evals | CI-CD`);
 });

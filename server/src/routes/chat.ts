@@ -50,18 +50,25 @@ router.post('/', requireAuth, async (req: Request, res: Response) => {
       sessionId,
       usage,
       tokensUsedThisMessage: tokensUsed,
+      suggestedActions: response.suggestedActions,
+      capabilitiesUsed: response.capabilitiesUsed,
+      confidence: response.confidence,
     });
   } catch (error) {
     console.error('Chat error:', error);
-    const message =
+    let message =
       error instanceof Error
         ? error.message
         : 'Failed to process chat message';
-    const status = message.includes('token limit') ? 402 : 500;
+    let status = 500;
+    if (message.includes('token limit')) status = 402;
+    else if (message.includes('rate limit') || message.includes('429')) status = 429;
     const hint =
       message.includes('PUTER_AUTH_TOKEN') || message.includes('Puter')
         ? ' Get a free token at https://puter.com/dashboard#account'
-        : '';
+        : status === 429
+          ? ' Try again in a minute or set AI_PROVIDER=gemini in .env.'
+          : '';
     res.status(status).json({ error: message + hint });
   }
 });

@@ -84,6 +84,11 @@ export default function ReportDashboard({ report, aiSummary, htmlReportUrl }: Pr
     { label: 'Skipped', value: report.skipped, icon: MinusCircle, color: 'text-slate-500' },
   ];
 
+  let displaySummary = aiSummary;
+  if (!displaySummary && report.recommendations && report.recommendations.length > 0) {
+    displaySummary = report.recommendations.join('\n\n');
+  }
+
   return (
     <div className="flex flex-col h-full overflow-y-auto">
       <div className="flex items-start justify-between gap-2 mb-3">

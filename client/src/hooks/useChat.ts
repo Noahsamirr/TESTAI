@@ -2,10 +2,18 @@ import { useState, useCallback } from 'react';
 const uuid = () => crypto.randomUUID();
 import { sendChatMessage } from '../services/api';
 import { useAuth } from '../context/AuthContext';
-import { Message, TestCase, GeneratedScript, TestReport, AgentPhase } from '../types';
+import {
+  Message,
+  TestCase,
+  GeneratedScript,
+  TestReport,
+  AgentPhase,
+  SuggestedAction,
+  AICapability,
+} from '../types';
 
 export const WELCOME_MESSAGE =
-  "Hi — I'm here to help you design and automate tests. Tell me what you're building or what you need to verify, and we'll work through it together. What would you like to test first?";
+  "Hi — I'm QualityForge AI, your Senior QA Architect and Test Automation Lead. I help teams design bulletproof test strategies, generate end-to-end automation scripts (Playwright, Cypress, Appium, k6, Jest), analyze results, and produce professional quality reports.\n\nI can help you with:\n• **Test Planning & Strategy** — comprehensive coverage matrices tailored to your stack\n• **Test Case Generation** — structured scenarios covering happy paths, edge cases, and security\n• **Automation Scripts** — Playwright, Cypress, Appium, k6 load tests, API testing\n• **Execution & Triage** — run scripts, analyze failures, distinguish bugs from flakes\n• **Reporting & CI** — executive reports, bug triage, GitHub Actions/GitLab CI pipelines\n\nTell me what you're building, paste a URL, or describe the flows that need testing. What would you like to start with?";
 
 export function useChat() {
   const { setUsage } = useAuth();
@@ -24,6 +32,9 @@ export function useChat() {
   const [testCases, setTestCases] = useState<TestCase[]>([]);
   const [currentScript, setCurrentScript] = useState<GeneratedScript | null>(null);
   const [currentReport, setCurrentReport] = useState<TestReport | null>(null);
+  const [suggestedActions, setSuggestedActions] = useState<SuggestedAction[]>([]);
+  const [capabilitiesUsed, setCapabilitiesUsed] = useState<AICapability[]>([]);
+  const [confidence, setConfidence] = useState<number>(1);
 
   const sendMessage = useCallback(
     async (text: string) => {
@@ -55,15 +66,18 @@ export function useChat() {
         setCurrentPhase(response.phase as AgentPhase);
 
         if (response.testCases?.length) {
-          setTestCases(prev => {
-            const existingIds = new Set(prev.map(tc => tc.id));
-            const newCases = response.testCases!.filter(tc => !existingIds.has(tc.id));
+          setTestCases((prev) => {
+            const existingIds = new Set(prev.map((tc) => tc.id));
+            const newCases = response.testCases!.filter((tc) => !existingIds.has(tc.id));
             return [...prev, ...newCases];
           });
         }
         if (response.script) setCurrentScript(response.script);
         if (response.report) setCurrentReport(response.report);
         if (response.usage) setUsage(response.usage);
+        if (response.suggestedActions?.length) setSuggestedActions(response.suggestedActions);
+        if (response.capabilitiesUsed?.length) setCapabilitiesUsed(response.capabilitiesUsed);
+        if (typeof response.confidence === 'number') setConfidence(response.confidence);
       } catch (error) {
         let detail = 'Something went wrong on our end.';
         if (error && typeof error === 'object' && 'response' in error) {
@@ -72,11 +86,13 @@ export function useChat() {
         } else if (error instanceof Error) {
           detail = error.message;
         }
+
         const errMsg: Message = {
           id: uuid(),
           role: 'assistant',
-          content: `I couldn't complete that request: ${detail} If this keeps happening, check your account and API settings, then try again.`,
+          content: `I couldn't complete that request: ${detail}`,
           timestamp: new Date(),
+          phase: 'questioning',
         };
         setMessages((prev) => [...prev, errMsg]);
       } finally {
@@ -102,6 +118,9 @@ export function useChat() {
     setTestCases([]);
     setCurrentScript(null);
     setCurrentReport(null);
+    setSuggestedActions([]);
+    setCapabilitiesUsed([]);
+    setConfidence(1);
   }, []);
 
   return {
@@ -112,9 +131,13 @@ export function useChat() {
     testCases,
     currentScript,
     currentReport,
+    suggestedActions,
+    capabilitiesUsed,
+    confidence,
     setCurrentScript,
     setCurrentReport,
     setTestCases,
+    setSuggestedActions,
     sendMessage,
     clearSession,
   };

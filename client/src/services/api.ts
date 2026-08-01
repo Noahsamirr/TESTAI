@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { TestCase, GeneratedScript, TestReport } from '../types';
+import { TestCase, GeneratedScript, TestReport, SuggestedAction, AICapability } from '../types';
 import type { AuthResponse, PlanInfo, TokenUsage } from '../types/auth';
 
 const TOKEN_KEY = 'testmind_token';
@@ -26,6 +26,9 @@ export interface ChatResponse {
   sessionId: string;
   usage?: TokenUsage;
   tokensUsedThisMessage?: number;
+  suggestedActions?: SuggestedAction[];
+  capabilitiesUsed?: AICapability[];
+  confidence?: number;
 }
 
 function extractError(error: unknown): never {
@@ -161,6 +164,60 @@ export async function getTunnelStatus() {
 
 export async function runMatrix(scriptId: string, browsers: { browser: string; os: string }[]) {
   const { data } = await api.post('/platform/matrix/run', { scriptId, browsers });
+  return data;
+}
+
+export async function runAccessibilityScan(body: {
+  url: string;
+  viewportWidth: number;
+  viewportHeight: number;
+}) {
+  const { data } = await api.post('/visual/scan', body);
+  return data;
+}
+
+export async function runSecurityScan(body: { url: string; scanType: 'full' | 'dast' | 'sca' }) {
+  const { data } = await api.post('/security/scan', body);
+  return data;
+}
+
+export async function getSecurityComplianceMap() {
+  const { data } = await api.get('/security/compliance-map');
+  return data;
+}
+
+export async function checkPerformanceK6() {
+  const { data } = await api.get('/performance/check');
+  return data;
+}
+
+export async function generatePerformanceScript(body: Record<string, unknown>) {
+  const { data } = await api.post('/performance/generate-script', body);
+  return data;
+}
+
+export async function startPerformanceRun(body: Record<string, unknown>) {
+  const { data } = await api.post('/performance/run', body);
+  return data;
+}
+
+export async function getPerformanceRun(runnerId: string) {
+  const { data } = await api.get(`/performance/runs/${runnerId}`);
+  return data;
+}
+
+export async function stopPerformanceRun(runnerId: string) {
+  const { data } = await api.post(`/performance/stop/${runnerId}`);
+  return data;
+}
+
+export async function getAiEvalTemplates() {
+  const { data } = await api.get('/ai-evals/templates');
+  return data;
+}
+
+export async function runAiEvals(body: { cases: unknown[]; systemPrompt?: string }) {
+  const { data } = await api.post('/ai-evals/run', body);
   return data;
 }
 

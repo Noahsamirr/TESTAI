@@ -2,6 +2,8 @@ import { useEffect, useState } from 'react';
 import { Smartphone, Search } from 'lucide-react';
 import { getPlatformCapabilities, reserveDevice, releaseDevice } from '../../services/api';
 import type { DeviceInfo } from '../../types/platform';
+import ExportReportButton from '../common/ExportReportButton';
+import { exportToPdf, exportToExcel } from '../../utils/exportUtils';
 
 export default function MobileDevicesView() {
   const [devices, setDevices] = useState<DeviceInfo[]>([]);
@@ -49,16 +51,41 @@ export default function MobileDevicesView() {
       alert(e instanceof Error ? e.message : 'Could not release device');
     }
   };
+  const handleExportPdf = () => {
+    const columns = ['Device Name', 'OS', 'Version', 'Type', 'Status'];
+    const data = filtered.map((d: any) => [
+      d.name,
+      d.os,
+      d.osVersion,
+      d.type,
+      d.status
+    ]);
+    exportToPdf('Mobile Devices Report', columns, data);
+  };
+
+  const handleExportExcel = () => {
+    const data = filtered.map((d: any) => ({
+      'Device Name': d.name,
+      OS: d.os,
+      Version: d.osVersion,
+      Type: d.type,
+      Status: d.status
+    }));
+    exportToExcel('Mobile Devices Report', data);
+  };
 
   return (
     <div className="p-8 max-w-7xl mx-auto">
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold text-slate-100 mb-2 flex items-center gap-3">
-          <Smartphone className="text-brand-500" /> Real Device Cloud
-        </h1>
-        <p className="text-slate-400">
-          Reserve iOS and Android devices for Appium/WebdriverIO mobile automation.
-        </p>
+      <div className="mb-8 flex justify-between items-end">
+        <div>
+          <h1 className="text-3xl font-bold text-slate-100 mb-2 flex items-center gap-3">
+            <Smartphone className="text-brand-500" /> Real Device Cloud
+          </h1>
+          <p className="text-slate-400">
+            Reserve iOS and Android devices for Appium/WebdriverIO mobile automation.
+          </p>
+        </div>
+        <ExportReportButton onExportPdf={handleExportPdf} onExportExcel={handleExportExcel} />
       </div>
 
       <div className="mb-6 flex gap-4">

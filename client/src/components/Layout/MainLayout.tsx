@@ -1,21 +1,10 @@
-import { ReactNode } from 'react';
-import { 
-  LayoutDashboard,
-  MonitorPlay,
-  ActivitySquare,
-  Smartphone,
-  Bot,
-  GitBranch,
-  Settings,
-  LogOut,
-  ChevronLeft,
-  ChevronRight,
-  User,
-  CreditCard,
-  LifeBuoy
+import React, { ReactNode, useState } from 'react';
+import {
+  LayoutDashboard, MonitorPlay, ActivitySquare, Smartphone,
+  Bot, GitBranch, Settings, LogOut, ChevronLeft, ChevronRight,
+  Eye, Zap, Shield, FlaskConical, ShieldCheck, ChevronDown,
+  Bell, Search, User, Database, Globe, Cpu, Sparkles,
 } from 'lucide-react';
-import Header from './Header';
-import { useState } from 'react';
 
 interface Props {
   children: ReactNode;
@@ -25,122 +14,220 @@ interface Props {
   onLogout?: () => void;
 }
 
-export default function MainLayout({
-  children,
-  activeView,
-  setActiveView,
-  onManagePlan,
-  onLogout
-}: Props) {
-  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
+const NAV: {
+  label: string;
+  items: { id: string; label: string; icon: React.FC<any>; badge?: string }[];
+}[] = [
+  {
+    label: 'Quality Platform',
+    items: [
+      { id: 'dashboard',   label: 'Dashboard',      icon: LayoutDashboard },
+      { id: 'live',        label: 'Live Testing',    icon: MonitorPlay },
+      { id: 'automated',  label: 'Automated Runs',  icon: ActivitySquare },
+      { id: 'mobile',     label: 'Real Devices',    icon: Smartphone },
+    ],
+  },
+  {
+    label: 'Test Modules',
+    items: [
+      { id: 'visual',      label: 'Visual & A11y',  icon: Eye },
+      { id: 'performance', label: 'Performance',    icon: Zap },
+      { id: 'security',    label: 'Security',       icon: Shield },
+      { id: 'ai-evals',   label: 'AI Evals',       icon: FlaskConical, badge: 'NEW' },
+    ],
+  },
+  {
+    label: 'AI & Automation',
+    items: [
+      { id: 'agents',      label: 'AI Agents',      icon: Cpu, badge: 'NEW' },
+      { id: 'ai',          label: 'AI Assistant',   icon: Bot },
+      { id: 'ci',          label: 'CI / CD',        icon: GitBranch },
+    ],
+  },
+  {
+    label: 'Utilities',
+    items: [
+      { id: 'api-testing', label: 'API Testing',    icon: Globe, badge: 'NEW' },
+      { id: 'test-data',   label: 'Test Data',      icon: Database, badge: 'NEW' },
+    ],
+  },
+];
 
-  const navItems = [
-    { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
-    { id: 'live', label: 'Live Testing', icon: MonitorPlay },
-    { id: 'automated', label: 'Automated Runs', icon: ActivitySquare },
-    { id: 'mobile', label: 'Real Devices', icon: Smartphone },
-    { id: 'ci', label: 'CI/CD', icon: GitBranch },
-    { id: 'ai', label: 'AI Assistant', icon: Bot },
-  ];
+const PAGE_TITLES: Record<string, { title: string; subtitle: string }> = {
+  dashboard:     { title: 'Dashboard',       subtitle: 'Platform overview' },
+  live:          { title: 'Live Testing',    subtitle: 'Cross-browser sessions' },
+  automated:     { title: 'Automated Runs',  subtitle: 'CI-triggered test history' },
+  mobile:        { title: 'Real Devices',    subtitle: 'Mobile device cloud' },
+  visual:        { title: 'Visual & A11y',   subtitle: 'WCAG 2.2 accessibility scans' },
+  performance:   { title: 'Performance',     subtitle: 'k6 load & stress testing' },
+  security:      { title: 'Security',        subtitle: 'DAST + SCA scanning' },
+  'ai-evals':    { title: 'AI Evals',        subtitle: 'LLM-as-judge evaluation suite' },
+  ci:            { title: 'CI / CD',         subtitle: 'Pipeline integrations' },
+  ai:            { title: 'AI Assistant',    subtitle: 'Test planning & generation' },
+  agents:        { title: 'AI Agents',       subtitle: 'Multi-agent orchestration' },
+  'api-testing': { title: 'API Testing',     subtitle: 'REST, GraphQL & OpenAPI' },
+  'test-data':   { title: 'Test Data',       subtitle: 'Synthetic data factory — 12 types, 9 locales' },
+  settings:      { title: 'Settings',        subtitle: 'Profile, providers & team' },
+};
+
+export default function MainLayout({ children, activeView, setActiveView, onManagePlan, onLogout }: Props) {
+  const [collapsed, setCollapsed] = useState(false);
+  const [searchVal, setSearchVal] = useState('');
+
+  const page = PAGE_TITLES[activeView] || { title: 'TestMind AI', subtitle: '' };
 
   return (
-    <div className="h-screen flex flex-col bg-surface-950 overflow-hidden text-slate-200 font-sans">
-      <Header
-        rightPanelCollapsed={true}
-        onToggleRightPanel={() => {}}
-        onManagePlan={onManagePlan}
-      />
-      <div className="flex flex-1 overflow-hidden relative">
-        {/* Left Navigation Sidebar */}
-        <aside 
-          className={`transition-all duration-300 ease-in-out border-r border-surface-600/30 bg-surface-900/50 backdrop-blur-xl flex flex-col justify-between overflow-hidden relative z-30 ${
-            isSidebarCollapsed ? 'w-20' : 'w-64'
-          }`}
-        >
-          <div className="flex-1 py-6 overflow-y-auto no-scrollbar">
-            <div className="px-4 mb-8 flex items-center justify-between">
-              {!isSidebarCollapsed && (
-                <h2 className="text-[10px] font-bold text-slate-500 uppercase tracking-[0.2em] ml-2">
-                  Main Menu
-                </h2>
-              )}
-              <button 
-                onClick={() => setIsSidebarCollapsed(!isSidebarCollapsed)}
-                className="p-1.5 rounded-lg hover:bg-surface-800 text-slate-500 transition-colors ml-auto"
-              >
-                {isSidebarCollapsed ? <ChevronRight size={16} /> : <ChevronLeft size={16} />}
-              </button>
-            </div>
+    <div className="h-screen flex overflow-hidden" style={{ background: 'var(--content-bg)' }}>
 
-            <nav className="px-3 space-y-1.5">
-              {navItems.map((item) => {
+      {/* ── Sidebar ───────────────────────────────────────────────────────── */}
+      <aside
+        className={`sidebar flex flex-col transition-all duration-300 ease-in-out shrink-0 ${collapsed ? 'w-[60px]' : 'w-[220px]'}`}
+        style={{ background: 'var(--sidebar-bg)' }}
+      >
+        {/* Logo */}
+        <div className={`flex items-center gap-2.5 px-4 h-14 shrink-0 border-b ${collapsed ? 'justify-center px-2' : ''}`}
+          style={{ borderColor: 'var(--sidebar-border)' }}>
+          <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-indigo-500 to-violet-600 flex items-center justify-center shrink-0">
+            <Sparkles size={14} className="text-white" />
+          </div>
+          {!collapsed && (
+            <div className="flex flex-col leading-tight overflow-hidden">
+              <span className="text-white font-bold text-[13px] truncate tracking-tight">TestMind AI</span>
+              <span className="text-indigo-400 text-[10px] font-medium">Enterprise Platform</span>
+            </div>
+          )}
+        </div>
+
+        {/* Nav */}
+        <div className="flex-1 overflow-y-auto py-3 no-scrollbar">
+          {NAV.map((section) => (
+            <div key={section.label} className="mb-1">
+              {!collapsed && (
+                <p className="sidebar-section-label">{section.label}</p>
+              )}
+              {section.items.map((item) => {
                 const Icon = item.icon;
                 const isActive = activeView === item.id;
                 return (
                   <button
                     key={item.id}
+                    id={`nav-${item.id}`}
                     onClick={() => setActiveView(item.id)}
-                    className={`group relative w-full flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-200 ${
-                      isActive
-                        ? 'bg-brand-500 text-black shadow-lg shadow-brand-500/20'
-                        : 'text-slate-400 hover:text-slate-100 hover:bg-surface-800'
-                    }`}
+                    title={collapsed ? item.label : undefined}
+                    className={`sidebar-nav-item w-full text-left group nav-item-ripple ${isActive ? 'active' : ''} ${collapsed ? 'justify-center px-0 mx-0 w-[60px] rounded-none' : ''}`}
+                    style={collapsed ? { margin: '1px 0', borderRadius: 0, padding: '10px 0', justifyContent: 'center' } : {}}
                   >
-                    <div className={`shrink-0 ${isActive ? 'text-black' : 'text-slate-500 group-hover:text-brand-500'}`}>
-                      <Icon size={20} />
-                    </div>
-                    {!isSidebarCollapsed && (
-                      <span className={`text-[13px] font-black tracking-tight ${isActive ? 'text-black' : 'text-slate-500'}`}>
+                    <Icon
+                      size={16}
+                      className={`shrink-0 transition-all duration-200 ${isActive ? 'text-indigo-400 scale-110' : 'text-[#4a5568] group-hover:text-[#a0aec0] group-hover:scale-105'}`}
+                    />
+                    {!collapsed && (
+                      <span className={`flex-1 truncate transition-all duration-200 ${isActive ? 'translate-x-[1px]' : ''}`}>
                         {item.label}
                       </span>
                     )}
-                    {isSidebarCollapsed && (
-                      <div className="absolute left-full ml-4 px-3 py-2 bg-surface-800 text-white text-xs font-bold rounded-lg opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity whitespace-nowrap z-50 shadow-xl border border-surface-600/50">
-                        {item.label}
-                      </div>
+                    {!collapsed && item.badge && (
+                      <span className="text-[9px] font-bold bg-indigo-500 text-white px-1.5 py-0.5 rounded-full uppercase tracking-wider animate-pulse">
+                        {item.badge}
+                      </span>
+                    )}
+                    {!collapsed && isActive && (
+                      <div className="w-1.5 h-1.5 rounded-full bg-indigo-400 animate-pulseSoft" />
                     )}
                   </button>
                 );
               })}
-            </nav>
+            </div>
+          ))}
+        </div>
+
+        {/* Bottom */}
+        <div className="shrink-0 border-t py-2" style={{ borderColor: 'var(--sidebar-border)' }}>
+          <button
+            onClick={() => setActiveView('settings')}
+            className={`sidebar-nav-item w-full text-left ${collapsed ? 'justify-center px-0 mx-0 w-[60px] rounded-none' : ''} ${activeView === 'settings' ? 'active' : ''}`}
+            style={collapsed ? { margin: '1px 0', borderRadius: 0, padding: '9px 0', justifyContent: 'center' } : {}}
+          >
+            <Settings size={15} className={`shrink-0 ${activeView === 'settings' ? 'text-indigo-400' : 'text-[#4a5568] group-hover:text-[#a0aec0]'}`} />
+            {!collapsed && <span>Settings</span>}
+          </button>
+          <button
+            onClick={onLogout}
+            className={`sidebar-nav-item w-full text-left ${collapsed ? 'justify-center px-0 mx-0 w-[60px] rounded-none' : ''}`}
+            style={collapsed ? { margin: '1px 0', borderRadius: 0, padding: '9px 0', justifyContent: 'center' } : {}}
+          >
+            <LogOut size={15} className="text-[#4a5568] group-hover:text-red-400 shrink-0" />
+            {!collapsed && <span>Log out</span>}
+          </button>
+          {/* Collapse toggle */}
+          <button
+            onClick={() => setCollapsed(!collapsed)}
+            className={`sidebar-nav-item w-full text-left ${collapsed ? 'justify-center px-0 mx-0 w-[60px] rounded-none' : ''}`}
+            style={collapsed ? { margin: '1px 0', borderRadius: 0, padding: '9px 0', justifyContent: 'center' } : {}}
+          >
+            {collapsed
+              ? <ChevronRight size={14} className="text-[#4a5568]" />
+              : <><ChevronLeft size={14} className="text-[#4a5568]" /><span className="text-xs">Collapse</span></>
+            }
+          </button>
+        </div>
+      </aside>
+
+      {/* ── Main Column ───────────────────────────────────────────────────── */}
+      <div className="flex-1 flex flex-col overflow-hidden min-w-0">
+
+        {/* ── Top Header (Testomat-style) ───────────────────────────────── */}
+        <header className="tm-header h-14 flex items-center justify-between px-6 shrink-0">
+          {/* Page breadcrumb */}
+          <div className="flex items-center gap-2 min-w-0">
+            <h1 className="text-[15px] font-700 truncate" style={{ color: 'var(--text-primary)', fontWeight: 700 }}>
+              {page.title}
+            </h1>
+            {page.subtitle && (
+              <>
+                <span style={{ color: 'var(--text-muted)' }}>/</span>
+                <span className="text-[13px] truncate" style={{ color: 'var(--text-tertiary)' }}>{page.subtitle}</span>
+              </>
+            )}
           </div>
 
-          <div className="p-4 border-t border-surface-600/30 space-y-1 bg-surface-900/80">
-            <button className="group relative w-full flex items-center gap-3 px-3 py-2 rounded-xl text-slate-500 hover:text-slate-100 hover:bg-surface-800 transition-all duration-200 text-[13px] font-black">
-              <Settings size={18} className="text-slate-500 group-hover:text-brand-500" />
-              {!isSidebarCollapsed && <span>Settings</span>}
-              {isSidebarCollapsed && (
-                <div className="absolute left-full ml-4 px-3 py-2 bg-surface-800 text-white text-xs font-bold rounded-lg opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity whitespace-nowrap z-50 shadow-xl border border-surface-600/50">
-                  Settings
-                </div>
-              )}
+          {/* Right controls */}
+          <div className="flex items-center gap-2 shrink-0">
+            {/* Search */}
+            <div className="relative hidden md:block">
+              <Search size={13} className="absolute left-3 top-1/2 -translate-y-1/2" style={{ color: 'var(--text-muted)' }} />
+              <input
+                type="text"
+                placeholder="Search…"
+                value={searchVal}
+                onChange={e => setSearchVal(e.target.value)}
+                className="tm-input pl-8 pr-3 h-8 text-xs w-48 focus:w-64 transition-all"
+                style={{ fontSize: 12 }}
+              />
+            </div>
+
+            {/* Notifications */}
+            <button className="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-gray-100 transition-colors relative">
+              <Bell size={15} style={{ color: 'var(--text-tertiary)' }} />
+              <span className="absolute top-1.5 right-1.5 w-1.5 h-1.5 rounded-full bg-indigo-500" />
             </button>
-            <button 
-              onClick={onLogout}
-              className="group relative w-full flex items-center gap-3 px-3 py-2 rounded-xl text-slate-500 hover:text-accent-red hover:bg-accent-red/10 transition-all duration-200 text-[13px] font-black"
+
+            {/* User avatar */}
+            <button
+              onClick={onManagePlan}
+              className="flex items-center gap-2 px-2 py-1 rounded-lg hover:bg-gray-100 transition-colors"
             >
-              <LogOut size={18} className="text-slate-500 group-hover:text-accent-red" />
-              {!isSidebarCollapsed && <span>Log Out</span>}
-              {isSidebarCollapsed && (
-                <div className="absolute left-full ml-4 px-3 py-2 bg-surface-800 text-white text-xs font-bold rounded-lg opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity whitespace-nowrap z-50 shadow-xl border border-surface-600/50">
-                  Log Out
-                </div>
-              )}
+              <div className="w-7 h-7 rounded-full bg-indigo-100 flex items-center justify-center">
+                <User size={14} className="text-indigo-600" />
+              </div>
+              <ChevronDown size={12} style={{ color: 'var(--text-muted)' }} />
             </button>
           </div>
-        </aside>
+        </header>
 
-        {/* Main Content Area */}
-        <main className="flex-1 flex flex-col overflow-hidden min-w-0 bg-surface-950 relative">
-          {/* Subtle background glow */}
-          <div className="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none z-0 opacity-20">
-            <div className="absolute top-[-10%] right-[-10%] w-[40%] h-[40%] bg-brand-500/20 blur-[120px] rounded-full"></div>
-            <div className="absolute bottom-[-10%] left-[-10%] w-[30%] h-[30%] bg-accent-info/10 blur-[100px] rounded-full"></div>
-          </div>
-          
-          <div className="flex-1 overflow-y-auto relative z-10">
-            {children}
-          </div>
+        {/* ── Page Content ─────────────────────────────────────────────── */}
+        <main className="flex-1 overflow-y-auto">
+          {children}
         </main>
       </div>
     </div>

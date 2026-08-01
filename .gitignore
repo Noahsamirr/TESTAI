@@ -1,18 +1,72 @@
+# Dependencies
 node_modules/
+.pnp
+.pnp.js
+
+# Build outputs
 dist/
-client/dist/
-server/dist/
-client/node_modules/.vite/
+build/
+.next/
+out/
+*.tsbuildinfo
+
+# Testing
+coverage/
+test-results/
+playwright-report/
+.nyc_output/
+*.lcov
+
+# Environment
 .env
 .env.local
-*.db
-*.db-shm
-*.db-wal
-testmind.db
-test-outputs/scripts/*
-test-outputs/reports/*
-test-outputs/allure-results/*
-!test-outputs/scripts/.gitkeep
-!test-outputs/reports/.gitkeep
-!test-outputs/allure-results/.gitkeep
+.env.*.local
+*.pem
+*.key
+*.crt
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
 .DS_Store
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Temporary
+tmp/
+temp/
+.cache/
+.eslintcache
+.parcel-cache/
+
+# Database
+*.db
+*.sqlite
+*.sqlite3
+
+# TestMind
+test-outputs/
+artifacts/
+screenshots/
+videos/
+traces/
+reports/
+tracing/
+
+# Turborepo
+.turbo/
+
+# Husky
+.husky/_/
+
+# Docs output
+docs/build/
+docs/.vitepress/cache/

@@ -2,6 +2,8 @@ import { useEffect, useState } from 'react';
 import { ActivitySquare, PlayCircle, RefreshCw } from 'lucide-react';
 import { getPlatformRuns } from '../../services/api';
 import type { TestRun } from '../../types/platform';
+import ExportReportButton from '../common/ExportReportButton';
+import { exportToPdf, exportToExcel } from '../../utils/exportUtils';
 
 export default function AutomatedRunsView({
   onGoToAi,
@@ -23,6 +25,31 @@ export default function AutomatedRunsView({
     load();
   }, []);
 
+  const handleExportPdf = () => {
+    const columns = ['Suite', 'Status', 'Environment', 'Results', 'Duration', 'Executed'];
+    const data = runs.map(r => [
+      r.name,
+      r.status,
+      `${r.browser} on ${r.os}`,
+      `${r.passed}P / ${r.failed}F / ${r.skipped}S`,
+      r.duration,
+      new Date(r.executedAt).toLocaleString()
+    ]);
+    exportToPdf('Automated Runs Report', columns, data);
+  };
+
+  const handleExportExcel = () => {
+    const data = runs.map(r => ({
+      Suite: r.name,
+      Status: r.status,
+      Environment: `${r.browser} on ${r.os}`,
+      Results: `${r.passed}P / ${r.failed}F / ${r.skipped}S`,
+      Duration: r.duration,
+      Executed: new Date(r.executedAt).toLocaleString()
+    }));
+    exportToExcel('Automated Runs Report', data);
+  };
+
   return (
     <div className="p-8 max-w-7xl mx-auto">
       <div className="mb-8 flex justify-between items-end">
@@ -35,6 +62,7 @@ export default function AutomatedRunsView({
           </p>
         </div>
         <div className="flex gap-2">
+          <ExportReportButton onExportPdf={handleExportPdf} onExportExcel={handleExportExcel} />
           <button
             type="button"
             onClick={load}

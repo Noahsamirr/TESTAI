@@ -65,8 +65,8 @@ export function resolveProviderName(): AIProviderName {
   return 'gemini';
 }
 
-export function createAIProvider(): AIProvider {
-  const name = resolveProviderName();
+export function createAIProvider(overrideName?: AIProviderName): AIProvider {
+  const name = overrideName || resolveProviderName();
   const effective = name === 'gemeni' ? 'gemini' : name;
 
   if (effective === 'gemini') {

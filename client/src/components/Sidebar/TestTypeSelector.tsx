@@ -26,12 +26,12 @@ export default function TestTypeSelector({ selected, onSelect }: Props) {
             onClick={() => onSelect(type.label)}
             className={`flex items-center gap-2 px-3 py-1.5 rounded-lg whitespace-nowrap transition-all duration-200 border ${
               isActive
-                ? 'bg-brand-500/10 text-brand-500 border-brand-500/30'
-                : 'bg-surface-800 text-slate-500 border-surface-600/30 hover:text-slate-200 hover:border-surface-600'
+                ? 'bg-indigo-50 text-indigo-700 border-indigo-300 font-bold shadow-sm'
+                : 'bg-white text-slate-600 border-slate-200 hover:text-slate-900 hover:bg-slate-50'
             }`}
           >
-            <Icon size={14} className={isActive ? 'text-brand-500' : 'text-slate-500'} />
-            <span className="text-[11px] font-bold tracking-tight">{type.label}</span>
+            <Icon size={14} className={isActive ? 'text-indigo-600' : 'text-slate-400'} />
+            <span className="text-[11px] font-semibold tracking-tight">{type.label}</span>
           </button>
         );
       })}

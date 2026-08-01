@@ -20,33 +20,33 @@ export default function ChatWindow({ messages, isLoading, onQuickStart }: Props)
   const showWelcome = messages.length <= 1;
 
   return (
-    <div className="min-h-full py-6 px-4">
+    <div className="min-h-full py-4 px-4">
       {showWelcome && (
-        <div className="flex flex-col items-center justify-center py-16 px-6 text-center animate-in fade-in zoom-in duration-700">
-          <div className="w-16 h-16 rounded-[2rem] bg-brand-500 flex items-center justify-center mb-6 shadow-2xl shadow-brand-500/20 group hover:rotate-12 transition-transform duration-500">
-             <Bot size={32} className="text-black" />
+        <div className="flex flex-col items-center justify-center py-12 px-6 text-center animate-in fade-in duration-500">
+          <div className="w-14 h-14 rounded-2xl bg-gradient-to-tr from-amber-500 to-orange-500 flex items-center justify-center mb-5 shadow-xl shadow-orange-500/25">
+             <Bot size={28} className="text-white" />
           </div>
-          <h2 className="text-2xl font-black text-white mb-3 tracking-tight italic">TestMind AI</h2>
-          <p className="text-slate-500 text-sm mb-10 max-w-md leading-relaxed font-medium">
-            Your senior QA partner for automated testing. Describe your scenario, and I'll generate test cases, scripts, and reports.
+          <h2 className="text-xl font-bold text-slate-900 mb-2 tracking-tight">How can TestMind AI assist your testing today?</h2>
+          <p className="text-slate-500 text-xs mb-8 max-w-sm leading-relaxed">
+            I can plan structured test suites, write automation scripts, run tests, and generate execution reports.
           </p>
           
-          <div className="grid grid-cols-2 gap-2.5 max-w-lg w-full">
+          <div className="grid grid-cols-2 gap-3 max-w-md w-full">
             {[
-              { text: 'E2E web tests', icon: Zap, prompt: 'I want to create E2E web tests' },
-              { text: 'Mobile tests', icon: Sparkles, prompt: 'I want to create mobile tests' },
-              { text: 'API testing', icon: Cpu, prompt: 'I want to create API tests' },
-              { text: 'Performance', icon: ShieldCheck, prompt: 'I want to create performance tests' },
+              { text: 'E2E Web Test Suite', icon: Zap, prompt: 'Generate an E2E Playwright test suite for my web app' },
+              { text: 'Mobile App Tests', icon: Sparkles, prompt: 'Create Appium test scenarios for mobile testing' },
+              { text: 'API Integration Test', icon: Cpu, prompt: 'Write Axios/Jest API integration test cases' },
+              { text: 'Security DAST Audit', icon: ShieldCheck, prompt: 'Perform a security DAST & header vulnerability audit' },
             ].map((item) => (
               <button
                 key={item.text}
                 onClick={() => onQuickStart(item.prompt)}
-                className="group flex items-center gap-2.5 px-4 py-3 bg-surface-900/50 hover:bg-surface-800 text-slate-400 hover:text-brand-500 border border-surface-600/30 rounded-xl transition-all duration-300 hover:scale-[1.01] hover:shadow-xl hover:border-brand-500/20"
+                className="tm-card p-3.5 flex items-center gap-2.5 text-left hover:border-indigo-500/40 hover:bg-indigo-50/50 transition-all group"
               >
-                <div className="p-1.5 rounded-lg bg-surface-800 group-hover:bg-brand-500/10 transition-colors">
-                  <item.icon size={14} className="group-hover:animate-pulse" />
+                <div className="p-2 rounded-lg bg-indigo-100 text-indigo-600 group-hover:bg-indigo-600 group-hover:text-white transition-colors">
+                  <item.icon size={15} />
                 </div>
-                <span className="text-xs font-bold tracking-tight">{item.text}</span>
+                <span className="text-xs font-semibold text-slate-800">{item.text}</span>
               </button>
             ))}
           </div>

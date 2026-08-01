@@ -1,44 +1,84 @@
-# TestMind AI
+# QualityForge AI
 
-An AI-powered QA automation assistant that helps you create E2E web tests, mobile tests, API tests, performance tests, and more — powered by Claude.
+The first truly unified, agent-native quality platform — one place to plan, generate, execute, self-heal, and report on every kind of test a modern software team needs.
+
+## What's New in v2.0 (QualityForge AI)
+
+| Was | Now |
+|---|---|
+| TestMind AI — single-layer AI test assistant | QualityForge AI — 9-layer unified quality platform |
+| 6 nav sections | 10 nav sections across 3 grouped categories |
+| Playwright + Appium + API | + Visual/A11y (axe-core) + Performance (k6) + Security (DAST+SCA) + AI Evals (LLM-as-judge) |
+| Basic dashboard | QualityForge dashboard with module grid, pass-rate bar, quick-launch |
+| `TestMind AI` system prompt | `QualityForge AI` prompt with 9 test-layer expertise |
+
+---
 
 ## Features
 
-### Sauce Labs–style platform
-- **Dashboard** — Live stats, recent runs, quick launch
-- **Live cross-browser testing** — Start sessions with URL + browser/OS matrix; screenshot capture via Playwright
-- **Automated runs** — Persisted run history with pass/fail counts and duration
-- **Real device cloud** — Device catalog with reserve/release (Appium-ready)
-- **CI/CD integrations** — GitHub Actions, Jenkins, CircleCI, GitLab, Azure pipeline templates
-- **Parallel matrix** — Queue multi-browser runs via API
-- **Local tunnel** — Config for staging apps (Sauce Connect–style via env)
+### Core Platform
+- **Dashboard** — Unified KPIs, pass-rate bar, module coverage grid, quick-launch shortcuts
+- **Live Web Testing** — Cross-browser Playwright sessions with screenshot capture
+- **Automated Runs** — Persisted run history, pass/fail counts, duration
+- **Real Device Cloud** — Appium-ready device catalog with reserve/release
+- **CI/CD Integrations** — GitHub Actions, Jenkins, CircleCI, GitLab, Azure Pipelines
+- **AI Assistant** — Full-lifecycle chat: plan → generate → execute → report (Playwright, Appium, k6, Jest, Axios)
 
-### AI automation
-- **Conversational test design** — Chat with the agent to define test scenarios
-- **Test case generation** — Structured given/when/then test cases in JSON
-- **Script generation** — Playwright, Appium/WebdriverIO, and Axios+Jest scripts with inline explanations
-- **Test execution** — Run generated scripts with live terminal output via WebSocket
-- **Reporting** — HTML reports, JSON/CSV export, Allure-compatible results, AI executive summaries, coverage heatmap, bug triage
+### Quality Modules (New in v2.0)
+- **Visual & Accessibility** — Real [axe-core](https://github.com/dequelabs/axe-core) WCAG 2.2 scan via headless Playwright. Checks A, AA, AAA criteria. Returns violation cards with WCAG refs, HTML evidence, and remediation guidance. Multi-viewport support (Desktop 1920 → Mobile 390).
+- **Performance & Load** — Real [k6](https://k6.io) load test runner. Configure VUs, duration, ramp-up, and P95/error-rate thresholds. Live log streaming via WebSocket. Auto-generates k6 JS scripts. Latency-over-time chart.
+- **Security Testing** — Playwright-based DAST: security headers, HTTPS enforcement, XSS reflection probing, open-redirect detection, cookie flag audit. SCA via [retire.js](https://retirejs.github.io/retire.js/) for vulnerable npm dependencies. Findings with OWASP/CWE/SOC2/PCI compliance mapping.
+- **AI Feature Testing** — LLM-as-judge evaluation via Claude. Four eval types: prompt-injection resistance, jailbreak resistance, factuality/hallucination, and custom quality grading. Pre-built templates, per-case score bars, model response + judge reasoning cards.
+
+---
 
 ## Tech Stack
 
 | Layer | Technology |
-|-------|------------|
-| Frontend | React + TypeScript + Vite + Tailwind CSS |
+|---|---|
+| Frontend | React 18 + TypeScript + Vite + Tailwind CSS |
 | Backend | Node.js + Express + TypeScript |
 | AI | Anthropic Claude (`claude-sonnet-4-20250514`) |
 | Database | SQLite via `better-sqlite3` |
-| E2E | Playwright |
+| E2E / Visual | Playwright + Chromium |
+| Accessibility | axe-core 4.10 (injected at runtime) |
+| Performance | k6 (external binary — see install guide below) |
+| Security DAST | Playwright headless browser active scanning |
+| Security SCA | retire.js (bundled via npx) |
+| AI Evals | Claude LLM-as-judge (dual-call: subject + judge) |
 | Mobile | Appium + WebdriverIO |
 | API | Axios + Jest |
+
+---
+
+## Dependencies Explained
+
+### Always bundled (no extra install)
+| Package | Used for |
+|---|---|
+| `@playwright/test` | Web E2E test execution |
+| `playwright` | Headless browser for A11y scan + DAST |
+| `@axe-core/playwright` | axe-core bindings for Playwright |
+| `retire` | SCA scan for vulnerable npm packages |
+| `@anthropic-ai/sdk` | Claude API for AI Assistant + AI Evals |
+
+### External binary required
+| Tool | Used for | Install |
+|---|---|---|
+| **k6** | Real load test execution | `brew install k6` (macOS) · `snap install k6` (Linux) · `choco install k6` (Windows) · [k6.io/docs](https://k6.io/docs/get-started/installation/) |
+
+> The platform detects whether k6 is installed and shows a status indicator in the Performance view. All other modules work without it.
+
+---
 
 ## Setup
 
 ### Prerequisites
-
 - Node.js 18+
 - npm
 - Anthropic API key ([console.anthropic.com](https://console.anthropic.com))
+- k6 (for Performance module only)
+- Playwright browsers installed (`npx playwright install chromium`)
 
 ### Installation
 
@@ -50,9 +90,12 @@ cp .env.example .env
 
 # Install all dependencies
 npm run install:all
+
+# Install Playwright browsers (required for Visual/A11y, Security, and Live Testing)
+cd server && npx playwright install chromium && cd ..
 ```
 
-Edit `.env` and set your `ANTHROPIC_API_KEY`:
+Edit `.env`:
 
 ```env
 ANTHROPIC_API_KEY=sk-ant-your-key-here
@@ -70,76 +113,60 @@ npm run dev
 - **Frontend**: http://localhost:5173
 - **Backend**: http://localhost:3001
 
-## How to Use
-
-1. Open http://localhost:5173
-2. The agent greets you and asks what type of testing you need
-3. Use quick-start buttons (E2E Web, Mobile, API, Performance) or type your requirements
-4. Answer the agent's questions about your app, URLs, credentials, etc.
-5. Review generated **test cases** in the right panel
-6. Review the generated **automation script** with explanations
-7. Click **Run Tests** to execute (requires Playwright/Appium installed locally)
-8. View the **report dashboard** with bugs, charts, and AI summary
-
-## Supported Test Types
-
-| Type | Framework | Description |
-|------|-----------|-------------|
-| E2E Web | Playwright + TypeScript | Browser automation with Page Object Model |
-| Mobile | Appium + WebdriverIO | iOS & Android native/hybrid apps |
-| API | Axios + Jest | REST API status, schema, and error testing |
-| Performance | Custom guidance | Load testing scenario design |
-| Security | Custom guidance | Auth, input, header testing |
-| Accessibility | Custom guidance | WCAG A/AA/AAA compliance |
-
-## Example Agent Conversation
-
-```
-User: I want to create E2E tests for a login page
-
-Agent: Great! I'll help you create comprehensive E2E tests. Let me ask a few questions:
-1. What is the URL of the login page?
-2. What browsers do you want to test? (Chrome, Firefox, Safari, Edge)
-3. What are the login credentials format?
-4. Are there any specific scenarios you want to cover? (wrong password, locked account, remember me, etc.)
-
-User: URL is https://app.example.com/login, test Chrome and Firefox, credentials are email+password, cover: successful login, wrong password, empty fields, locked account
-
-Agent: Perfect! Here are 6 test cases I've created... [shows test cases]
-The Playwright TypeScript script is ready... [shows script with explanations]
-```
-
-## Project Structure
-
-```
-testmind-ai/
-├── client/          # React frontend
-├── server/          # Express API + Claude agent
-├── test-outputs/    # Generated scripts & reports
-├── .env.example
-└── package.json     # npm workspaces root
-```
+---
 
 ## API Endpoints
 
+### Existing
 | Method | Endpoint | Description |
-|--------|----------|-------------|
-| POST | `/api/chat` | Send message to agent |
+|---|---|---|
+| POST | `/api/chat` | AI Assistant chat |
 | GET | `/api/testcases/:sessionId` | Get test cases |
 | GET | `/api/scripts/:sessionId` | Get scripts |
 | POST | `/api/runner/run` | Run a script |
 | GET | `/api/reports/session/:sessionId` | Get reports |
-| GET | `/api/platform/dashboard` | Dashboard stats + recent runs |
-| GET | `/api/platform/capabilities` | Browser/device/CI catalog |
+| GET | `/api/platform/dashboard` | Dashboard stats |
 | POST | `/api/platform/live/start` | Start live session |
 | GET | `/api/platform/ci/:provider` | CI pipeline template |
-| WS | `ws://localhost:3001` | Test runner streaming |
 
-## Viewing Reports
+### New in v2.0
+| Method | Endpoint | Description |
+|---|---|---|
+| POST | `/api/visual/scan` | Real axe-core accessibility scan |
+| GET | `/api/visual/viewports` | Viewport preset list |
+| POST | `/api/performance/run` | Start k6 load test |
+| POST | `/api/performance/generate-script` | Generate k6 script (no run) |
+| GET | `/api/performance/check` | Check if k6 is installed |
+| GET | `/api/performance/runs/:runnerId` | Get completed perf result |
+| POST | `/api/security/scan` | DAST + SCA security scan |
+| GET | `/api/security/findings/:scanId` | Get scan findings |
+| GET | `/api/security/compliance-map` | OWASP/SOC2/PCI framework reference |
+| POST | `/api/ai-evals/run` | Run LLM-as-judge eval suite |
+| GET | `/api/ai-evals/templates` | Pre-built eval case templates |
+| GET | `/api/ai-evals/eval-types` | Eval type reference |
+| GET | `/api/health` | Platform health + module list |
 
-- **In-app**: Report dashboard in the right panel after test execution
-- **HTML report**: Click "View Full HTML Report" (saved to `test-outputs/reports/`)
-- **Export**: JSON or CSV download buttons in the report dashboard
+---
+
+## Platform Architecture
+
+```
+QualityForge AI
+├── Orchestration Agent (Claude) ←→ AI Assistant view
+│   ├── Web/E2E Agent    → Playwright runner
+│   ├── Mobile Agent     → Appium/WebdriverIO
+│   ├── API Agent        → Axios + Jest
+│   ├── Visual Agent     → axe-core + Playwright (accessibilityScanner.ts)
+│   ├── Perf Agent       → k6 binary (performanceRunner.ts)
+│   ├── Security Agent   → Playwright DAST + retire.js (securityScanner.ts)
+│   └── AI-Eval Agent    → LLM-as-judge via Claude (aiEvalsRunner.ts)
+├── Execution Engine     → scriptRunner.ts (WebSocket streaming)
+├── Reporting Service    → reportGenerator.ts (HTML + JSON + AI summary)
+├── Platform Service     → platformService.ts (live sessions, device cloud)
+└── Auth/Tenancy         → JWT + SQLite + subscription tiers
+```
+
+---
 
 ## License
 
